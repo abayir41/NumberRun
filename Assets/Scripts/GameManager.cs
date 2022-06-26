@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using MoreMountains.Feedbacks;
 using UnityEngine;
 
@@ -11,7 +13,7 @@ public class GameManager : MonoBehaviour
     public float moveCenter = 8;
     public float halfMovement = 4;
     [Header("Level Settings")] 
-    public bool isEditorGoal;
+    public bool IsEditorGoal = false;
     public int editorLevelGoal = 10;
     [Header("Player")]
     public float colorDuration = 2f;
@@ -24,9 +26,9 @@ public class GameManager : MonoBehaviour
     public int portalSpawnRate = 90;
     public int distanceBetweenMobAndPortal = 5;
     [Header("Obs")] 
-    public int obsSpawnRate;
-    public bool isOnlyOneObs;
-    public int spawnObsNumber;
+    public int obsSpawnRate = 0;
+    public bool isOnlyOneObs = false;
+    public int spawnObsNumber = 0;
     [Header("Spawn")] 
     public float numberBetweenSpace = -0.4f;
     public float spawnMobDistanceVertical = 15f;
@@ -38,18 +40,17 @@ public class GameManager : MonoBehaviour
     public int[] spawnNumberLimitMultiply = { 1, 3 };
     public int[] spawnNumberLimitDivide = { 1, 3 };
     [Header("Final")]
-    public RuntimeAnimatorController houseAnimatorController;
+    public RuntimeAnimatorController _houseAnimatorController;
     
-    private bool _isSound;
-
-    private void Awake()
+    private bool isSound = false;
+    void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
     private void Start()
     {
-        _isSound = PlayerDatabase.Instance.GetSound();
+        isSound = PlayerDatabase.instance.GetSound();
     }
 
     #region Settings
@@ -57,121 +58,121 @@ public class GameManager : MonoBehaviour
     public void CoinCollectSound()
     {
         Vibrate();
-        if (!_isSound) return;
-        FeedbackManager.Instance.CoinCollectSound.PlayFeedbacks();
+        if (!isSound) return;
+        FeedbackManager.instance.CoinCollectSound.PlayFeedbacks();
     }
     public void SplashSound()
     {
         Vibrate();
-        if (!_isSound) return;
-        FeedbackManager.Instance.SplashSound.PlayFeedbacks();
+        if (!isSound) return;
+        FeedbackManager.instance.SplashSound.PlayFeedbacks();
     }
     public void LevelUpSound()
     {
         VibrateHigher();
-        if (!_isSound) return;
-        FeedbackManager.Instance.LevelUpSound.PlayFeedbacks();
+        if (!isSound) return;
+        FeedbackManager.instance.LevelUpSound.PlayFeedbacks();
     }
     public void HouseSounds(int i)
     {
-        if (!_isSound) return;
+        if (!isSound) return;
         switch (i)
         {
             case 0:
-                FeedbackManager.Instance.Charge.PlayFeedbacks();
+                FeedbackManager.instance.Charge.PlayFeedbacks();
                 break;
             case 1:
-                FeedbackManager.Instance.Jump.PlayFeedbacks();
+                FeedbackManager.instance.Jump.PlayFeedbacks();
                 break;
             case 2:
-                FeedbackManager.Instance.Land.PlayFeedbacks();
+                FeedbackManager.instance.Land.PlayFeedbacks();
                 break;
         }
     }
     public void DieFeedback()
     {
         VibrateHigher();
-        FeedbackManager.Instance.DieFeedback.PlayFeedbacks();
+        FeedbackManager.instance.DieFeedback.PlayFeedbacks();
     }
     public void ScalePlayer(bool isActive)
     {
         if (isActive)
         {
-            FeedbackManager.Instance.ScalePlayer.GetComponent<MMFeedbackPosition>().InitialPosition =
+            FeedbackManager.instance.ScalePlayer.GetComponent<MMFeedbackPosition>().InitialPosition =
                 PlayerController.Instance.transform.localPosition;
-            FeedbackManager.Instance.ScalePlayer.PlayFeedbacks();
+            FeedbackManager.instance.ScalePlayer.PlayFeedbacks();
         }
         else
         {
-            FeedbackManager.Instance.ScalePlayer.StopFeedbacks();
+            FeedbackManager.instance.ScalePlayer.StopFeedbacks();
         }
     }
     public void BadSound()
     {
         Vibrate();
-        if (!_isSound) return;
-        FeedbackManager.Instance.BadSound.StopFeedbacks();
-        FeedbackManager.Instance.BadSound.PlayFeedbacks();
+        if (!isSound) return;
+        FeedbackManager.instance.BadSound.StopFeedbacks();
+        FeedbackManager.instance.BadSound.PlayFeedbacks();
     }
 
     public void LoseFeedback(bool isActive)
     {
         if (isActive)
-            FeedbackManager.Instance.LoseFeedback.PlayFeedbacks();
+            FeedbackManager.instance.LoseFeedback.PlayFeedbacks();
         else
         {
-            FeedbackManager.Instance.LoseFeedback.StopFeedbacks();
+            FeedbackManager.instance.LoseFeedback.StopFeedbacks();
         }
     }
     public void LoseFeedbackSound(bool isActive)
     {
-        if(!_isSound) return;
+        if(!isSound) return;
         if (isActive)
-            FeedbackManager.Instance.LoseFeedbackSound.PlayFeedbacks();
+            FeedbackManager.instance.LoseFeedbackSound.PlayFeedbacks();
         else
         {
-            FeedbackManager.Instance.LoseFeedbackSound.StopFeedbacks();
+            FeedbackManager.instance.LoseFeedbackSound.StopFeedbacks();
         }
     }
     
     public void CompleteSound()
     {
         VibrateHigher();
-        if(!_isSound) return;
-        FeedbackManager.Instance.CompleteSound.PlayFeedbacks();
+        if(!isSound) return;
+        FeedbackManager.instance.CompleteSound.PlayFeedbacks();
     }
     public void CashOut()
     {
-        if(!_isSound) return;
-        FeedbackManager.Instance.CashOut.PlayFeedbacks();
+        if(!isSound) return;
+        FeedbackManager.instance.CashOut.PlayFeedbacks();
     }
     public void PlayPopUp(bool isActive)
     {
         Vibrate();
         if (isActive)
         {
-            if (!_isSound) return;
-            FeedbackManager.Instance.PopUpOpen.PlayFeedbacks();
+            if (!isSound) return;
+            FeedbackManager.instance.PopUpOpen.PlayFeedbacks();
         }
         else
         {
-            if (!_isSound) return;
-            FeedbackManager.Instance.PopUpClose.PlayFeedbacks();
+            if (!isSound) return;
+            FeedbackManager.instance.PopUpClose.PlayFeedbacks();
         }
     }
 
     public void Vibrate()
     {
-        if (PlayerDatabase.Instance.CanVibrate())
+        if (PlayerDatabase.instance.CanVibrate())
         {
-            FeedbackManager.Instance.Vibrate.PlayFeedbacks();
+            FeedbackManager.instance.Vibrate.PlayFeedbacks();
         }
     }
     
     public void VibrateHigher()
     {
-        if (PlayerDatabase.Instance.CanVibrate())
-            FeedbackManager.Instance.VibrateHigher.PlayFeedbacks();
+        if (PlayerDatabase.instance.CanVibrate())
+            FeedbackManager.instance.VibrateHigher.PlayFeedbacks();
     }
 
     #endregion

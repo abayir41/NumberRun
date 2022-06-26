@@ -8,14 +8,14 @@ public class Number : MonoBehaviour
 {
     public Transform spawnPos;
     public int plusType;
-    private int _amount;
-    private int _matTypes;
+    private int amount;
+    private int matTypes;
 
-    public void SetPlus(int amount, int type)
+    public void SetPlus(int _amount, int _type)
     {
-        _amount = amount;
-        plusType = type;
-        _matTypes = MatType();
+        amount = _amount;
+        plusType = _type;
+        matTypes = matType();
         SetNumber();
     }
 
@@ -25,7 +25,8 @@ public class Number : MonoBehaviour
     {
         List<int> tempList = new List<int>();
 
-        int tempNumber = _amount;
+        int tempNumber = amount;
+        int length = 0;
         while (tempNumber > 0)
         {
             int numberToAdd = tempNumber % 10;
@@ -35,11 +36,11 @@ public class Number : MonoBehaviour
             tempNumber /= 10; 
         }
 
-        bool isSingle = true;
+        bool IsSingle = true;
         int reverseCount = tempList.Count + 1;
 
         if (reverseCount % 2 == 0)
-            isSingle = false;
+            IsSingle = false;
 
         int totalThree = reverseCount / 2;
 
@@ -56,18 +57,16 @@ public class Number : MonoBehaviour
             {
                 var temObj = Instantiate(Resources.Load<GameObject>("Pluses/" + plusType));
                 temObj.transform.SetParent(transform);
-                temObj.GetComponent<Letter>().SetColor(_matTypes);
+                temObj.GetComponent<Letter>().SetColor(matTypes);
             
-                if (!isSingle)
+                if (!IsSingle)
                 {
-                    var localPosition = spawnPos.localPosition;
-                    temObj.transform.localPosition = new Vector3(totalTwo, localPosition.y, localPosition.z);
+                    temObj.transform.localPosition = new Vector3(totalTwo, spawnPos.localPosition.y, spawnPos.localPosition.z);
                     totalTwo += increaseRate;
                 }
                 else
                 {
-                    var localPosition = spawnPos.localPosition;
-                    temObj.transform.localPosition = new Vector3(zeroLeftCount, localPosition.y, localPosition.z);
+                    temObj.transform.localPosition = new Vector3(zeroLeftCount, spawnPos.localPosition.y, spawnPos.localPosition.z);
                     zeroLeftCount += increaseRate;
                 }
             }
@@ -75,18 +74,16 @@ public class Number : MonoBehaviour
             {
                 var temObj = Instantiate(Resources.Load<GameObject>("Numbers/" + tempList[reverseCount]));
                 temObj.transform.SetParent(transform);
-                temObj.GetComponent<Letter>().SetColor(_matTypes);
+                temObj.GetComponent<Letter>().SetColor(matTypes);
             
-                if (!isSingle)
+                if (!IsSingle)
                 {
-                    var localPosition = spawnPos.localPosition;
-                    temObj.transform.localPosition = new Vector3(totalTwo, localPosition.y, localPosition.z);
+                    temObj.transform.localPosition = new Vector3(totalTwo, spawnPos.localPosition.y, spawnPos.localPosition.z);
                     totalTwo += increaseRate;
                 }
                 else
                 {
-                    var localPosition = spawnPos.localPosition;
-                    temObj.transform.localPosition = new Vector3(zeroLeftCount, localPosition.y, localPosition.z);
+                    temObj.transform.localPosition = new Vector3(zeroLeftCount, spawnPos.localPosition.y, spawnPos.localPosition.z);
                     zeroLeftCount += increaseRate;
                 }
             }
@@ -96,7 +93,7 @@ public class Number : MonoBehaviour
 
     #region Calculators
 
-    private int MatType()
+    private int matType()
     {
         int plusTypes = PlusTyped();
         if (plusTypes == 0 || plusTypes == 2)
@@ -111,7 +108,7 @@ public class Number : MonoBehaviour
 
     public int TotalAmount()
     {
-        return _amount;
+        return amount;
     }
     #endregion
 

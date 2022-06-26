@@ -16,7 +16,7 @@ public class Letter : MonoBehaviour
         StartCoroutine(ChangingColor(color));
     }
 
-    private IEnumerator ChangingColor(int color)
+    IEnumerator ChangingColor(int color)
     {
         var mat = GetComponent<MeshRenderer>().material;
         var curColor = mat.color;

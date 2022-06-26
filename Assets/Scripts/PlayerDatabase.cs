@@ -7,11 +7,11 @@ using Random = UnityEngine.Random;
 
 public class PlayerDatabase : MonoBehaviour
 {
-    public static PlayerDatabase Instance;
+    public static PlayerDatabase instance;
     
     private void Awake()
     {
-        if (Instance == null) Instance = this;
+        if (instance == null) instance = this;
         else Destroy(gameObject);
     }
 

@@ -14,12 +14,11 @@ public class PlayerController : MonoBehaviour
     public Transform spawnPos;
     public int firstNumber = 12;
     public List<GameObject> addedNumbers;
-    private bool _isPortalable = true;
-    public bool isCompleted;
+    private bool IsPortalable = true;
+    public bool IsCompleted;
     public int total;
-    private Animator _animator;
-
-    private void Awake()
+    private Animator animator;
+    void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
@@ -43,12 +42,12 @@ public class PlayerController : MonoBehaviour
         }
         if (other.CompareTag("Portal"))
         {
-            if(!_isPortalable) return;
-            _isPortalable = true;
+            if(!IsPortalable) return;
+            IsPortalable = true;
             var portal = other.GetComponent<Portal>();
             SetNumber(portal.TotalAmount(),portal.PlusTyped(), true);
             Destroy(other.transform.parent.gameObject);
-            _isPortalable = true;
+            IsPortalable = true;
         }
     }
 
@@ -56,7 +55,7 @@ public class PlayerController : MonoBehaviour
 
     #region SpawnPlayer
    
-    public void SetNumber(int number, int pluses, bool isAdd)
+    public void SetNumber(int _number, int pluses, bool IsAdd)
     {
         for (int i = 0; i < addedNumbers.Count; i++)
         {
@@ -68,57 +67,57 @@ public class PlayerController : MonoBehaviour
         addedNumbers = new List<GameObject>();
         List<int> tempList = new List<int>();
 
-        if (!isAdd)
-            total = number;
+        if (!IsAdd)
+            total = _number;
         else
         {
             if (pluses == 0)
             {
-                if(!isCompleted)
+                if(!IsCompleted)
                     ScaleFeedBack();
-                total += number;
+                total += _number;
             }
             else if (pluses == 1)
             {
-                if(!isCompleted)
+                if(!IsCompleted)
                     SpawnLostNumber(total);
-                total -= number;
+                total -= _number;
             }
             else if (pluses == 2)
             {
-                if(!isCompleted)
+                if(!IsCompleted)
                     ScaleFeedBack();
-                total *= number;
+                total *= _number;
             }
             else if (pluses == 3)
             {
-                if(!isCompleted)
+                if(!IsCompleted)
                     SpawnLostNumber(total);
-                total /= number;
+                total /= _number;
             }
-            number = total;
+            _number = total;
         }
-        isCompleted = total == LevelManager.Instance.levelGoal;
-        if (isAdd)
+        IsCompleted = total == LevelManager.Instance.levelGoal;
+        if (IsAdd)
         {
             if (pluses == 0)
             {
-                if(!isCompleted)
+                if(!IsCompleted)
                     ScaleFeedBack();
             }
             else if (pluses == 1)
             {
-                if(!isCompleted)
+                if(!IsCompleted)
                     SpawnLostNumber(total);
             }
             else if (pluses == 2)
             {
-                if(!isCompleted)
+                if(!IsCompleted)
                     ScaleFeedBack();
             }
             else if (pluses == 3)
             {
-                if(!isCompleted)
+                if(!IsCompleted)
                     SpawnLostNumber(total);
             }
         }
@@ -127,21 +126,22 @@ public class PlayerController : MonoBehaviour
             //TODO: Die
             return;
         }
-
-        while (number > 0)
+        
+        int length = 0;
+        while (_number > 0)
         {
-            int numberToAdd = number % 10;
+            int numberToAdd = _number % 10;
             
             tempList.Add(numberToAdd);
             
-            number /= 10; 
+            _number /= 10; 
         }
 
-        bool isSingle = true;
+        bool IsSingle = true;
         int reverseCount = tempList.Count;
 
         if (reverseCount % 2 == 0)
-            isSingle = false;
+            IsSingle = false;
 
         int totalThree = reverseCount / 2;
 
@@ -160,49 +160,48 @@ public class PlayerController : MonoBehaviour
             temObj.GetComponent<Letter>().SetColor(0);
             temObj.GetComponent<Letter>().HitColor(pluses);
             
-            if (!isSingle)
+            if (!IsSingle)
             {
-                var localPosition = spawnPos.localPosition;
-                temObj.transform.localPosition = new Vector3(totalTwo, localPosition.y, localPosition.z);
+                temObj.transform.localPosition = new Vector3(totalTwo, spawnPos.localPosition.y, spawnPos.localPosition.z);
                 totalTwo += increaseRate;
             }
             else
             {
-                var localPosition = spawnPos.localPosition;
-                temObj.transform.localPosition = new Vector3(zeroLeftCount, localPosition.y, localPosition.z);
+                temObj.transform.localPosition = new Vector3(zeroLeftCount, spawnPos.localPosition.y, spawnPos.localPosition.z);
                 zeroLeftCount += increaseRate;
             }
         }
         
-        if (isCompleted)
+        if (IsCompleted)
             LevelManager.Instance.GameCompleted(true);
     }
     #endregion
 
     #region SpawnLostNumber
 
-    public void SpawnLostNumber(int number)
+    public void SpawnLostNumber(int _number)
     {
         GameManager.Instance.BadSound();
         List<int> tempList = new List<int>();
 
-        var deadNumber = Instantiate(Resources.Load<GameObject>("Spawnable/DeadNumber"));
-        deadNumber.transform.position = transform.position;
+        var DeadNumber = Instantiate(Resources.Load<GameObject>("Spawnable/DeadNumber"));
+        DeadNumber.transform.position = transform.position;
 
-        while (number > 0)
+        int length = 0;
+        while (_number > 0)
         {
-            int numberToAdd = number % 10;
+            int numberToAdd = _number % 10;
             
             tempList.Add(numberToAdd);
             
-            number /= 10; 
+            _number /= 10; 
         }
 
-        bool isSingle = true;
+        bool IsSingle = true;
         int reverseCount = tempList.Count;
 
         if (reverseCount % 2 == 0)
-            isSingle = false;
+            IsSingle = false;
 
         int totalThree = reverseCount / 2;
 
@@ -212,29 +211,27 @@ public class PlayerController : MonoBehaviour
 
         float increaseRate = Mathf.Abs(GameManager.Instance.numberBetweenSpace);
 
-        var spawnPosNumber = deadNumber.GetComponent<Number>().spawnPos;
+        var spawnPosNumber = DeadNumber.GetComponent<Number>().spawnPos;
         
         for (int i = 0; i < tempList.Count; i++)
         {
             reverseCount--;
             var temObj = Instantiate(Resources.Load<GameObject>("Numbers/" + tempList[reverseCount]));
-            temObj.transform.SetParent(deadNumber.transform);
+            temObj.transform.SetParent(DeadNumber.transform);
             temObj.transform.localRotation = Quaternion.Euler(25f, 180, 0);
             temObj.AddComponent<Rigidbody>();
             temObj.AddComponent<BoxCollider>();
             temObj.GetComponent<Letter>().SetColor(2);
             temObj.layer = 6;
             
-            if (!isSingle)
+            if (!IsSingle)
             {
-                var localPosition = spawnPosNumber.localPosition;
-                temObj.transform.localPosition = new Vector3(totalTwo, localPosition.y, localPosition.z);
+                temObj.transform.localPosition = new Vector3(totalTwo, spawnPosNumber.localPosition.y, spawnPosNumber.localPosition.z);
                 totalTwo += increaseRate;
             }
             else
             {
-                var localPosition = spawnPosNumber.localPosition;
-                temObj.transform.localPosition = new Vector3(zeroLeftCount, localPosition.y, localPosition.z);
+                temObj.transform.localPosition = new Vector3(zeroLeftCount, spawnPosNumber.localPosition.y, spawnPosNumber.localPosition.z);
                 zeroLeftCount += increaseRate;
             }
         }

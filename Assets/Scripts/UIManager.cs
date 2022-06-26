@@ -8,9 +8,9 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance;
     [Header("Beginner")]
     public GameObject joystick;
-    public GameObject beginnerPanel;
+    public GameObject BeginnerPanel;
     [Header("Game Panel")] 
-    public TextMeshProUGUI goalText;
+    public TextMeshProUGUI GoalText;
     
     void Awake()
     {
@@ -22,13 +22,13 @@ public class UIManager : MonoBehaviour
     {
         LevelManager.Instance.BeginGame();
         
-        beginnerPanel.SetActive(false);
+        BeginnerPanel.SetActive(false);
         joystick.SetActive(true);
     }
 
-    public void SetGoalText(int goal)
+    public void SetGoalText(int _goal)
     {
-        goalText.gameObject.SetActive(true);
-        goalText.text = "Reach " + goal;
+        GoalText.gameObject.SetActive(true);
+        GoalText.text = "Reach " + _goal;
     }
 }
