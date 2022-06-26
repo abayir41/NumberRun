@@ -8,7 +8,7 @@ public class LevelManager : MonoBehaviour
     public static LevelManager Instance;
     [Header("Beginner")] 
     public int curGameType;
-    public GameObject BeginnerPlayer;
+    public GameObject beginnerPlayer;
     public GameObject pathCube;
     public GameObject[] portalPos;
     public List<GameObject> expPortals;
@@ -20,7 +20,7 @@ public class LevelManager : MonoBehaviour
     [Header("Obs")]
     public GameObject[] resourcesObs;
     [Header("Portal")]
-    public Transform PortalSpawnPosesParent;
+    public Transform portalSpawnPosesParent;
     [Header("Final")] 
     public GameObject confetti;
 
@@ -34,7 +34,7 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
-        if (GameManager.Instance.IsEditorGoal)
+        if (GameManager.Instance.isEditorGoal)
         {
             levelGoal = GameManager.Instance.editorLevelGoal;
         }
@@ -51,7 +51,7 @@ public class LevelManager : MonoBehaviour
 
     void StartPlayer()
     {
-        BeginnerPlayer.GetComponent<Player>().StartPlayer(true);
+        beginnerPlayer.GetComponent<Player>().StartPlayer(true);
     }
     
     void StartCube()
@@ -81,7 +81,7 @@ public class LevelManager : MonoBehaviour
             currentObjs[i] = coinSpawnParent.transform.GetChild(curGameType).transform.GetChild(pos).transform.GetChild(i).gameObject;
         }
         bool isForward = IsForward(currentObjs);
-        var totalSpawnMob = 0;
+        int totalSpawnMob;
 
         if (isForward)
         {
@@ -112,17 +112,17 @@ public class LevelManager : MonoBehaviour
         for (int i = 0; i < totalSpawnCoin; i++)
         {
             var spawnPosZ = go[0].transform.position.z + (i * GameManager.Instance.spawnMobDistanceVertical);
-            int IsAnyPortal = 0;
+            int isAnyPortal = 0;
             for (int j = 0; j < expPortals.Count; j++)
             {
                 if (spawnPosZ < expPortals[j].transform.position.z + distance &&
                     spawnPosZ > expPortals[j].transform.position.z - distance)
                 {
-                    IsAnyPortal++;
+                    isAnyPortal++;
                 }
             }
 
-            if (IsAnyPortal == 0)
+            if (isAnyPortal == 0)
             {
                 for (int j = 0; j < GameManager.Instance.spawnMobDistanceHorizontal.Length; j++)
                 {
@@ -135,24 +135,24 @@ public class LevelManager : MonoBehaviour
                             var spawnedName = Random.Range(0, resourcesObs.Length);
                             if (GameManager.Instance.isOnlyOneObs)
                                 spawnedName = GameManager.Instance.spawnObsNumber;
-                            var SpawnItem = 
+                            var spawnItem = 
                                 Instantiate(Resources.Load<GameObject>("Obs/" + resourcesObs[spawnedName].name));
-                            SpawnItem.transform.position = new Vector3(go[0].transform.position.x + GameManager.Instance.spawnMobDistanceHorizontal[j],
-                                SpawnItem.transform.position.y,
+                            spawnItem.transform.position = new Vector3(go[0].transform.position.x + GameManager.Instance.spawnMobDistanceHorizontal[j],
+                                spawnItem.transform.position.y,
                                 spawnPosZ);
-                            SpawnItem.transform.rotation = go[0].transform.rotation;
+                            spawnItem.transform.rotation = go[0].transform.rotation;
                         }
                         else
                         {
                             var type = ChooseType();
                             var number = GetNumber(type);
-                            var SpawnItem = 
+                            var spawnItem = 
                                 Instantiate(Resources.Load<GameObject>(spawnablePath));
-                            SpawnItem.transform.position = new Vector3(go[0].transform.position.x + GameManager.Instance.spawnMobDistanceHorizontal[j],
-                                SpawnItem.transform.position.y,
+                            spawnItem.transform.position = new Vector3(go[0].transform.position.x + GameManager.Instance.spawnMobDistanceHorizontal[j],
+                                spawnItem.transform.position.y,
                                 spawnPosZ);
-                            SpawnItem.transform.rotation = go[0].transform.rotation;
-                            SpawnItem.GetComponent<Number>().SetPlus(number,type);
+                            spawnItem.transform.rotation = go[0].transform.rotation;
+                            spawnItem.GetComponent<Number>().SetPlus(number,type);
                         }
                     }
                 }
@@ -166,17 +166,17 @@ public class LevelManager : MonoBehaviour
         for (int i = 0; i < totalSpawnCoin; i++)
         {
             var spawnPosX = go[0].transform.position.x + (i * GameManager.Instance.spawnMobDistanceVertical);
-            int IsAnyPortal = 0;
+            int isAnyPortal = 0;
             for (int j = 0; j < expPortals.Count; j++)
             {
                 if (spawnPosX < expPortals[j].transform.position.x + distance &&
                     spawnPosX > expPortals[j].transform.position.x - distance)
                 {
-                    IsAnyPortal++;
+                    isAnyPortal++;
                 }
             }
 
-            if (IsAnyPortal == 0)
+            if (isAnyPortal == 0)
             {
                 for (int j = 0; j < GameManager.Instance.spawnMobDistanceHorizontal.Length; j++)
                 {
@@ -189,24 +189,24 @@ public class LevelManager : MonoBehaviour
                             var spawnedName = Random.Range(0, resourcesObs.Length);
                             if (GameManager.Instance.isOnlyOneObs)
                                 spawnedName = GameManager.Instance.spawnObsNumber;
-                            var SpawnItem = 
+                            var spawnItem = 
                                 Instantiate(Resources.Load<GameObject>("Obs/" + resourcesObs[spawnedName].name));
-                            SpawnItem.transform.position = new Vector3(spawnPosX,
-                                SpawnItem.transform.position.y,
+                            spawnItem.transform.position = new Vector3(spawnPosX,
+                                spawnItem.transform.position.y,
                                 go[0].transform.position.z + GameManager.Instance.spawnMobDistanceHorizontal[j]);
-                            SpawnItem.transform.rotation = go[0].transform.rotation;
+                            spawnItem.transform.rotation = go[0].transform.rotation;
                         }
                         else
                         {
                             var type = ChooseType();
                             var number = GetNumber(type);
-                            var SpawnItem = 
+                            var spawnItem = 
                                 Instantiate(Resources.Load<GameObject>(spawnablePath));
-                            SpawnItem.transform.position = new Vector3(spawnPosX,
-                                SpawnItem.transform.position.y,
+                            spawnItem.transform.position = new Vector3(spawnPosX,
+                                spawnItem.transform.position.y,
                                 go[0].transform.position.z + GameManager.Instance.spawnMobDistanceHorizontal[j]);
-                            SpawnItem.transform.rotation = go[0].transform.rotation;
-                            SpawnItem.GetComponent<Number>().SetPlus(number,type);
+                            spawnItem.transform.rotation = go[0].transform.rotation;
+                            spawnItem.GetComponent<Number>().SetPlus(number,type);
                         }
                     }
                 }
@@ -220,17 +220,17 @@ public class LevelManager : MonoBehaviour
         {
             // pos - 12 portal -30 distance 3
             var spawnPosX = go[0].transform.position.x - (i * GameManager.Instance.spawnMobDistanceVertical);
-            int IsAnyPortal = 0;
+            int isAnyPortal = 0;
             for (int j = 0; j < expPortals.Count; j++)
             {
                 if (spawnPosX < expPortals[j].transform.position.x + distance &&
                     spawnPosX > expPortals[j].transform.position.x - distance)
                 {
-                    IsAnyPortal++;
+                    isAnyPortal++;
                 }
             }
 
-            if (IsAnyPortal == 0)
+            if (isAnyPortal == 0)
             {
                 for (int j = 0; j < GameManager.Instance.spawnMobDistanceHorizontal.Length; j++)
                 {
@@ -243,24 +243,24 @@ public class LevelManager : MonoBehaviour
                             var spawnedName = Random.Range(0, resourcesObs.Length);
                             if (GameManager.Instance.isOnlyOneObs)
                                 spawnedName = GameManager.Instance.spawnObsNumber;
-                            var SpawnItem = 
+                            var spawnItem = 
                                 Instantiate(Resources.Load<GameObject>("Obs/" + resourcesObs[spawnedName].name));
-                            SpawnItem.transform.position = new Vector3(spawnPosX,
-                                SpawnItem.transform.position.y,
+                            spawnItem.transform.position = new Vector3(spawnPosX,
+                                spawnItem.transform.position.y,
                                 go[0].transform.position.z + GameManager.Instance.spawnMobDistanceHorizontal[j]);
-                            SpawnItem.transform.rotation = go[0].transform.rotation;
+                            spawnItem.transform.rotation = go[0].transform.rotation;
                         }
                         else
                         {
                             var type = ChooseType();
                             var number = GetNumber(type);
-                            var SpawnItem = 
+                            var spawnItem = 
                                 Instantiate(Resources.Load<GameObject>(spawnablePath));
-                            SpawnItem.transform.position = new Vector3(spawnPosX,
-                                SpawnItem.transform.position.y,
+                            spawnItem.transform.position = new Vector3(spawnPosX,
+                                spawnItem.transform.position.y,
                                 go[0].transform.position.z + GameManager.Instance.spawnMobDistanceHorizontal[j]);
-                            SpawnItem.transform.rotation = go[0].transform.rotation;
-                            SpawnItem.GetComponent<Number>().SetPlus(number,type);
+                            spawnItem.transform.rotation = go[0].transform.rotation;
+                            spawnItem.GetComponent<Number>().SetPlus(number,type);
                         }
                     }
                 }
@@ -339,7 +339,7 @@ public class LevelManager : MonoBehaviour
     
     void SpawnPortals()
     {
-        for (int i = 0; i < PortalSpawnPosesParent.transform.GetChild(curGameType).transform.childCount; i++)
+        for (int i = 0; i < portalSpawnPosesParent.transform.GetChild(curGameType).transform.childCount; i++)
         {
             SpawnPortals(i);
         }
@@ -350,10 +350,10 @@ public class LevelManager : MonoBehaviour
         GameObject[] currentObjs = new GameObject[2];
         for (int i = 0; i < currentObjs.Length; i++)
         {
-            currentObjs[i] = PortalSpawnPosesParent.transform.GetChild(curGameType).transform.GetChild(pos).transform.GetChild(i).gameObject;
+            currentObjs[i] = portalSpawnPosesParent.transform.GetChild(curGameType).transform.GetChild(pos).transform.GetChild(i).gameObject;
         }
         bool isForward = IsForward(currentObjs);
-        var totalSpawnPortal = 0;
+        int totalSpawnPortal;
 
         if (isForward)
         {
@@ -456,7 +456,7 @@ public class LevelManager : MonoBehaviour
 
     public void LevelGoal()
     {
-        if (GameManager.Instance.IsEditorGoal)
+        if (GameManager.Instance.isEditorGoal)
         {
             levelGoal = GameManager.Instance.editorLevelGoal;
             UIManager.Instance.SetGoalText(levelGoal);
@@ -467,15 +467,15 @@ public class LevelManager : MonoBehaviour
 
     #region Final
 
-    public void GameCompleted(bool IsWin)
+    public void GameCompleted(bool isWin)
     {
         PlayerController.Instance.GetComponent<Player>().LevelDone();
-        if (IsWin)
+        if (isWin)
         {
             GameManager.Instance.CompleteSound();
             confetti.SetActive(true);
             pathCube.GetComponent<BeziePathFollower>().canMove = false;
-            BeginnerPlayer.transform.parent.GetComponent<BeziePathFollower>().canMove = false;
+            beginnerPlayer.transform.parent.GetComponent<BeziePathFollower>().canMove = false;
             PlayerController.Instance.GetComponent<Animator>().enabled = true;
         }
     }

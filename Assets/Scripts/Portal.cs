@@ -8,20 +8,20 @@ public class Portal : MonoBehaviour
 {
     public TextMeshPro amountText;
     public int plusType;
-    private int amount;
+    private int _amount;
 
-    public void SetPortal(int _amount)
+    public void SetPortal(int amount)
     {
-        amount = _amount;
+        _amount = amount;
         if (GetComponent<ExpEffector>().expType == ExpType.Add)
         {
             plusType = 0;
-            amountText.text = "+" + _amount;
+            amountText.text = "+" + amount;
         }
         else if (GetComponent<ExpEffector>().expType == ExpType.Remove)
         {
             plusType = 1;
-            amountText.text = "-" + _amount;
+            amountText.text = "-" + amount;
         }
         
     }
@@ -33,6 +33,6 @@ public class Portal : MonoBehaviour
 
     public int TotalAmount()
     {
-        return amount;
+        return _amount;
     }
 }

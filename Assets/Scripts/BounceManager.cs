@@ -12,27 +12,28 @@ namespace MoreMountains.Feel
     /// </summary>
     public class BounceManager : MonoBehaviour
     {
-        public static BounceManager instance;
+        public static BounceManager Instance;
         [Header("Cooldown")]
-        /// a duration, in seconds, between two jumps, during which jumps are prevented
+        // a duration, in seconds, between two jumps, during which jumps are prevented
         [Tooltip("a duration, in seconds, between two jumps, during which jumps are prevented")]
-        public float CooldownDuration = 1f;
+        public float cooldownDuration = 1f;
 
         [Header("Bindings")]
-        /// the animator of the 'feedback' version  
+        // the animator of the 'feedback' version  
         [Tooltip("the animator of the 'feedback' version")]
-        public Animator FeedbackAnimator;
+        public Animator feedbackAnimator;
 
-        protected float _lastJumpStartedAt = -100f;
+        private float _lastJumpStartedAt = -100f;
+        private static readonly int JUMP = Animator.StringToHash("Jump");
 
         private void Awake()
         {
-            if (instance == null) instance = this;
+            if (Instance == null) Instance = this;
             else Destroy(gameObject);
         }
         public void GoJump()
         {
-            FeedbackAnimator.SetTrigger("Jump");
+            feedbackAnimator.SetTrigger(JUMP);
         }
 
         /// <summary>
@@ -40,15 +41,15 @@ namespace MoreMountains.Feel
         /// </summary>
         protected virtual void Jump()
         {
-            if (Time.time - _lastJumpStartedAt < CooldownDuration)
+            if (Time.time - _lastJumpStartedAt < cooldownDuration)
             {
                 
             }
             else
             {
-                if (FeedbackAnimator.isActiveAndEnabled)
+                if (feedbackAnimator.isActiveAndEnabled)
                 {
-                    FeedbackAnimator.SetTrigger("Jump");
+                    feedbackAnimator.SetTrigger(JUMP);
                 }
                 _lastJumpStartedAt = Time.time;
             }            

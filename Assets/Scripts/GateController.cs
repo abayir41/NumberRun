@@ -8,8 +8,8 @@ public class GateController : MonoBehaviour
 
     public void SetPortals(int yearOne, int yearTwo)
     {
-        var spawnability = Random.Range(0, 100);
-        if (spawnability < GameManager.Instance.onePortalSpawnRate)
+        var spawnPossibility = Random.Range(0, 100);
+        if (spawnPossibility < GameManager.Instance.onePortalSpawnRate)
         {
             var randomPortal = Random.Range(0, 100);
             if (randomPortal == 0)

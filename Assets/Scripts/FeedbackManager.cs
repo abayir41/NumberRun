@@ -6,47 +6,48 @@ using UnityEngine;
 
 public class FeedbackManager : MonoBehaviour
 {
-    public static FeedbackManager instance;
-    [SerializeField] private MMFeedbacks _Vibrate;
-    [SerializeField] private MMFeedbacks _VibrateHigher;
-    [SerializeField] private MMFeedbacks _CashOut;
-    [SerializeField] private MMFeedbacks _CoinCollect;
-    [SerializeField] private MMFeedbacks _CoinCollectSound;
-    [SerializeField] private MMFeedbacks _PopUpOpen;
-    [SerializeField] private MMFeedbacks _PopUpClose;
-    [SerializeField] private MMFeedbacks _CompleteSound;
-    [SerializeField] private MMFeedbacks _ScalePlayer;
-    [SerializeField] private MMFeedbacks _LoseFeedback;
-    [SerializeField] private MMFeedbacks _LoseFeedbackSound;
-    [SerializeField] private MMFeedbacks _BadSound;
-    [SerializeField] private MMFeedbacks _SplashSound;
-    [SerializeField] private MMFeedbacks _LevelUpSound;
-    [SerializeField] private MMFeedbacks _DieFeedback;
-    [SerializeField] private MMFeedbacks _Charge;
-    [SerializeField] private MMFeedbacks _Jump;
-    [SerializeField] private MMFeedbacks _Land;
+    public static FeedbackManager Instance;
+    [SerializeField] private MMFeedbacks vibrate;
+    [SerializeField] private MMFeedbacks vibrateHigher;
+    [SerializeField] private MMFeedbacks cashOut;
+    [SerializeField] private MMFeedbacks coinCollect;
+    [SerializeField] private MMFeedbacks coinCollectSound;
+    [SerializeField] private MMFeedbacks popUpOpen;
+    [SerializeField] private MMFeedbacks popUpClose;
+    [SerializeField] private MMFeedbacks completeSound;
+    [SerializeField] private MMFeedbacks scalePlayer;
+    [SerializeField] private MMFeedbacks loseFeedback;
+    [SerializeField] private MMFeedbacks loseFeedbackSound;
+    [SerializeField] private MMFeedbacks badSound;
+    [SerializeField] private MMFeedbacks splashSound;
+    [SerializeField] private MMFeedbacks levelUpSound;
+    [SerializeField] private MMFeedbacks dieFeedback;
+    [SerializeField] private MMFeedbacks charge;
+    [SerializeField] private MMFeedbacks jump;
+    [SerializeField] private MMFeedbacks land;
 
-    public MMFeedbacks Vibrate => _Vibrate;
-    public MMFeedbacks VibrateHigher => _VibrateHigher;
-    public MMFeedbacks CashOut => _CashOut;
-    public MMFeedbacks CoinCollect => _CoinCollect;
-    public MMFeedbacks CoinCollectSound => _CoinCollectSound;
-    public MMFeedbacks PopUpOpen => _PopUpOpen;
-    public MMFeedbacks PopUpClose => _PopUpClose;
-    public MMFeedbacks CompleteSound => _CompleteSound;
-    public MMFeedbacks ScalePlayer => _ScalePlayer;
-    public MMFeedbacks LoseFeedback => _LoseFeedback;
-    public MMFeedbacks LoseFeedbackSound => _LoseFeedbackSound;
-    public MMFeedbacks BadSound => _BadSound;
-    public MMFeedbacks SplashSound => _SplashSound;
-    public MMFeedbacks LevelUpSound => _LevelUpSound;
-    public MMFeedbacks DieFeedback => _DieFeedback;
-    public MMFeedbacks Charge => _Charge;
-    public MMFeedbacks Jump => _Jump;
-    public MMFeedbacks Land => _Land;
-    void Awake()
+    public MMFeedbacks Vibrate => vibrate;
+    public MMFeedbacks VibrateHigher => vibrateHigher;
+    public MMFeedbacks CashOut => cashOut;
+    public MMFeedbacks CoinCollect => coinCollect;
+    public MMFeedbacks CoinCollectSound => coinCollectSound;
+    public MMFeedbacks PopUpOpen => popUpOpen;
+    public MMFeedbacks PopUpClose => popUpClose;
+    public MMFeedbacks CompleteSound => completeSound;
+    public MMFeedbacks ScalePlayer => scalePlayer;
+    public MMFeedbacks LoseFeedback => loseFeedback;
+    public MMFeedbacks LoseFeedbackSound => loseFeedbackSound;
+    public MMFeedbacks BadSound => badSound;
+    public MMFeedbacks SplashSound => splashSound;
+    public MMFeedbacks LevelUpSound => levelUpSound;
+    public MMFeedbacks DieFeedback => dieFeedback;
+    public MMFeedbacks Charge => charge;
+    public MMFeedbacks Jump => jump;
+    public MMFeedbacks Land => land;
+
+    private void Awake()
     {
-        if (instance == null) instance = this;
+        if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
     
