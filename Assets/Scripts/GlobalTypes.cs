@@ -21,7 +21,7 @@ namespace GlobalTypes
         Boss
     }
     
-    public struct Stage
+    public class Stage
     {
         public readonly float StartPoint;
         public readonly float FinishPoint;
