@@ -67,6 +67,8 @@ public class PlayerController : MonoBehaviour
         addedNumbers = new List<GameObject>();
         List<int> tempList = new List<int>();
 
+        
+        //Deciding total score
         if (!IsAdd)
             total = _number;
         else
@@ -97,7 +99,9 @@ public class PlayerController : MonoBehaviour
             }
             _number = total;
         }
-        IsCompleted = total == LevelManager.Instance.levelGoal;
+        IsCompleted = total >= LevelManager.Instance.levelGoal;
+        
+        //feedbacks
         if (IsAdd)
         {
             if (pluses == 0)
@@ -121,35 +125,38 @@ public class PlayerController : MonoBehaviour
                     SpawnLostNumber(total);
             }
         }
+        
+        //die handling
         if (total <= 0)
         {
+            ProjectEvents.GameLost?.Invoke();
             //TODO: Die
             return;
         }
         
-        int length = 0;
+        ProjectEvents.ScoreChanged?.Invoke(total);
+
+        //Some calculations and spawning letter
         while (_number > 0)
         {
-            int numberToAdd = _number % 10;
+            var numberToAdd = _number % 10;
             
             tempList.Add(numberToAdd);
             
             _number /= 10; 
         }
+        
+        var reverseCount = tempList.Count;
 
-        bool IsSingle = true;
-        int reverseCount = tempList.Count;
+        var isSingle = reverseCount % 2 != 0;
 
-        if (reverseCount % 2 == 0)
-            IsSingle = false;
+        var totalThree = reverseCount / 2;
 
-        int totalThree = reverseCount / 2;
+        var zeroLeftCount = totalThree * GameManager.Instance.numberBetweenSpace;
 
-        float zeroLeftCount = (totalThree) * GameManager.Instance.numberBetweenSpace;
+        var totalTwo = zeroLeftCount + (Mathf.Abs(GameManager.Instance.numberBetweenSpace) / 2f);
 
-        float totalTwo = zeroLeftCount + (Mathf.Abs(GameManager.Instance.numberBetweenSpace) / 2f);
-
-        float increaseRate = Mathf.Abs(GameManager.Instance.numberBetweenSpace);
+        var increaseRate = Mathf.Abs(GameManager.Instance.numberBetweenSpace);
         
         for (int i = 0; i < tempList.Count; i++)
         {
@@ -160,7 +167,7 @@ public class PlayerController : MonoBehaviour
             temObj.GetComponent<Letter>().SetColor(0);
             temObj.GetComponent<Letter>().HitColor(pluses);
             
-            if (!IsSingle)
+            if (!isSingle)
             {
                 temObj.transform.localPosition = new Vector3(totalTwo, spawnPos.localPosition.y, spawnPos.localPosition.z);
                 totalTwo += increaseRate;
@@ -172,8 +179,13 @@ public class PlayerController : MonoBehaviour
             }
         }
         
+        //Win event
         if (IsCompleted)
+        {
             LevelManager.Instance.GameCompleted(true);
+            ProjectEvents.GameWin?.Invoke();
+        }
+            
     }
     #endregion
 
