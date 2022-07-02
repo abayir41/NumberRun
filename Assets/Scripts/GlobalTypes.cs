@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace GlobalTypes
 {
     public enum PortalType
@@ -17,6 +19,21 @@ namespace GlobalTypes
     {
         Normal,
         Boss
+    }
+    
+    public struct Stage
+    {
+        public readonly float StartPoint;
+        public readonly float FinishPoint;
+        public Sprite StageSprite;
+
+        public Stage(Sprite stageSprite, float startPoint, float finishPoint)
+        {
+            StageSprite = stageSprite;
+            FinishPoint = finishPoint;
+            StartPoint = startPoint;
+        }
+        
     }
 
 }
