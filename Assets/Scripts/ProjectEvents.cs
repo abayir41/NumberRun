@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using GlobalTypes;
 using UnityEngine;
 
 public static class ProjectEvents
@@ -12,5 +13,18 @@ public static class ProjectEvents
     //Passing the new score
     public static Action<int> ScoreChanged;
 
-    public static Action StageChanged;
+    #region IQStages
+
+    //first arg is where we upped, second arg is what is the next stage
+    public static Action<Stage> StageUpped;
+
+    //first arg is where we upped, second arg is what is the next stage
+    public static Action<Stage> StageDowned;
+    
+    public static Action<float> LastRatioChanged;
+
+    public static Action StagesPassedOverTheTarget;
+
+    #endregion
+
 }
