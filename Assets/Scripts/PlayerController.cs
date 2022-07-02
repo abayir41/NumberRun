@@ -99,7 +99,7 @@ public class PlayerController : MonoBehaviour
             }
             _number = total;
         }
-        IsCompleted = total >= LevelManager.Instance.levelGoal;
+        IsCompleted = total == LevelManager.Instance.levelGoal;
         
         //feedbacks
         if (IsAdd)
