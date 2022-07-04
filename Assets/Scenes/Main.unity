@@ -394,7 +394,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 0.436
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -3907,6 +3907,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 105af9f7c49d94d3e87b0b32fca11338, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  config: {fileID: 0}
   speed: 11
   totalPathIfNotFinish: 1
   moveCenter: 3
