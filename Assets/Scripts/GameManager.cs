@@ -7,6 +7,9 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    public static GameConfig Config { get; private set; }
+    [SerializeField] private GameConfig config;
+    
     [Header("Movement")] 
     public float speed = 11;
     public int totalPathIfNotFinish = 1;
@@ -47,6 +50,8 @@ public class GameManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+
+        Config = config;
     }
     private void Start()
     {
