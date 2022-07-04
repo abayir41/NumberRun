@@ -25,7 +25,7 @@ namespace GlobalTypes
     {
         public readonly float StartPoint;
         public readonly float FinishPoint;
-        public Sprite StageSprite;
+        public readonly Sprite StageSprite;
 
         public Stage(Sprite stageSprite, float startPoint, float finishPoint)
         {
@@ -35,5 +35,22 @@ namespace GlobalTypes
         }
         
     }
+
+    public enum UIAnimationType
+    {
+        BasicEnableDisable,
+        Move,
+        FadeOut,
+        Minimize,
+        Nothing
+    }
+    public enum UIAnimationDirections
+    {
+        Right,
+        Left,
+        Up,
+        Down
+    }
+    
 
 }
