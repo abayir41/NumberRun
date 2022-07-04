@@ -153,7 +153,7 @@ public class UIElement : MonoBehaviour
     {
         callback += () =>
         {
-            if (AutoDisableComponents && _selectable is not null)
+            if (AutoDisableComponents && _selectable != null)
             {
                 DisableInteractiveness();
                 DisableComponents();
@@ -201,7 +201,7 @@ public class UIElement : MonoBehaviour
     public Tweener MoveBackward(UIAnimationDirections direction, Action callback = null)
     {
         
-        if (AutoDisableComponents && _selectable is not null)
+        if (AutoDisableComponents && _selectable != null)
         {
             EnableInteractiveness();
             EnableComponents();
@@ -245,14 +245,14 @@ public class UIElement : MonoBehaviour
     {
         callback += () =>
         {
-            if (AutoDisableComponents && _selectable is not null)
+            if (AutoDisableComponents && _selectable != null)
             {
                 DisableInteractiveness();
                 DisableComponents();
             }
         };
         
-        if (_image is not null)
+        if (_image != null)
         {
             _originalImgAlpha ??= _image.color.a;
             
@@ -260,7 +260,7 @@ public class UIElement : MonoBehaviour
             return _currentAnimation;
         }
          
-        if (_text is not null)
+        if (_text != null)
         {
             _originalTextAlpha ??= _text.color.a;
             
@@ -274,13 +274,13 @@ public class UIElement : MonoBehaviour
 
     public Tweener FadeOutBackWard(Action callback = null)
     {
-        if (AutoDisableComponents && _selectable is not null)
+        if (AutoDisableComponents && _selectable != null)
         {
             EnableInteractiveness();
             EnableComponents();
         }
         
-        if (_image is not null)
+        if (_image != null)
         {
             if (_originalImgAlpha is null)
                 throw new Exception("Image Alpha seems not cached, You may not call the Fadeout function first");
@@ -289,7 +289,7 @@ public class UIElement : MonoBehaviour
             return _currentAnimation;
         }
          
-        if (_text is not null)
+        if (_text != null)
         {
             if (_originalTextAlpha is null)
                 throw new Exception("Text Alpha seems not cached, You may not call the Fadeout function first");
@@ -310,7 +310,7 @@ public class UIElement : MonoBehaviour
     {
         callback += () =>
         {
-            if (AutoDisableComponents && _selectable is not null)
+            if (AutoDisableComponents && _selectable != null)
             {
                 DisableInteractiveness();
                 DisableComponents();
@@ -323,7 +323,7 @@ public class UIElement : MonoBehaviour
     
     public Tweener NormalSize(Action callback = null)
     {
-        if (AutoDisableComponents && _selectable is not null)
+        if (AutoDisableComponents && _selectable != null)
         {
             EnableInteractiveness();
             EnableInteractiveness();
@@ -340,13 +340,13 @@ public class UIElement : MonoBehaviour
 
     public Tweener StartFadeLoop()
     {
-        if (_image is not null)
+        if (_image != null)
         {
             _currentAnimation = _image.DOFade(0, Config.UIFadeLoopAnimationDuration).SetEase(Ease.InCirc).SetLoops(-1, LoopType.Yoyo);
             return _currentAnimation;
         }
          
-        if (_text is not null)
+        if (_text != null)
         {
             _currentAnimation = _text.DOFade(0, Config.UIFadeLoopAnimationDuration).SetEase(Ease.InCirc).SetLoops(-1, LoopType.Yoyo);
             return _currentAnimation;
