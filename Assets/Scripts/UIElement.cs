@@ -326,8 +326,7 @@ public class UIElement : MonoBehaviour
         if (AutoDisableComponents && _selectable != null)
         {
             EnableInteractiveness();
-            EnableInteractiveness();
-
+            EnableComponents();
         }
         
         _currentAnimation = _rectTransform.DOScale(Vector3.one, Config.UIMinimizeTime).OnComplete(() => callback?.Invoke());
