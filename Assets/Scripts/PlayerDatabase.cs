@@ -7,34 +7,26 @@ using Random = UnityEngine.Random;
 
 public class PlayerDatabase : MonoBehaviour
 {
-    public static PlayerDatabase instance;
-    
-    private void Awake()
-    {
-        if (instance == null) instance = this;
-        else Destroy(gameObject);
-    }
-
     #region Settings
     
-    public bool CanVibrate()
+    public static bool CanVibrate()
     {
         return PlayerPrefs.GetInt("_vibrate_") == 0;
     }
 
-    public void ChangeVibrate(int vibrate)
+    public static void ChangeVibrate(bool makeEnable)
     {
-        PlayerPrefs.SetInt("_vibrate_",vibrate);
+        PlayerPrefs.SetInt("_vibrate_",makeEnable ? 1 : 0);
     }
     
-    public bool GetSound()
+    public static bool CanSound()
     {
         return PlayerPrefs.GetInt("_sound_") == 0;
     }
 
-    public void ChangeSound(int sound)
+    public static void ChangeSound(bool makeEnable)
     {
-        PlayerPrefs.SetInt("_sound_",sound);
+        PlayerPrefs.SetInt("_sound_",makeEnable ? 1 : 0);
     }
     #endregion
 

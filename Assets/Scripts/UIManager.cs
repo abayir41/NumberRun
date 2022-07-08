@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using DG.Tweening;
 using GlobalTypes;
 using TMPro;
@@ -13,19 +10,40 @@ public class UIManager : MonoBehaviour
     [Header("Beginner")]
     public GameObject joystick;
     public GameObject BeginnerPanel;
-    [Header("Game Panel")] 
+    [Header("Game Panel")]
     public TextMeshProUGUI GoalText;
-
+    [SerializeField] private UIElement goalTextUIElement;
+    
     [Header("IQ Slider")] 
     [SerializeField] private float animTime;
     [SerializeField] private Slider iqSlide;
-    [SerializeField] private GameObject iqCurrentGameObjectKnob;
-    [SerializeField] private GameObject iqLeftTargetGameObject;
-    [SerializeField] private GameObject iqRightTargetGameObject;
+    [SerializeField] private UIElement iqCurrentGameObjectKnob;
+    [SerializeField] private UIElement iqLeftTargetGameObject;
+    [SerializeField] private UIElement iqRightTargetGameObject;
     private Image _iqCurrentImageKnob;
-    private static Image _iqLeftTargetImage;
+    private Image _iqLeftTargetImage;
     private Image _iqRightTargetImage;
     private Sequence _currentSequence;
+
+    [Header("Start Menu")] 
+    [SerializeField] private UIElementGroup startMenuElements;
+    [SerializeField] private UIElement tapToStart;
+
+    [Header("Game Menu")] 
+    [SerializeField] private UIElementGroup gameMenuElements;
+
+    [Header("Settings Menu")] 
+    [SerializeField] private UIElement settingsPanel;
+    private bool _isSettingOpen = false;
+
+    [Header("Sound and Vibration")] 
+    [SerializeField] private Image soundImage;
+    [SerializeField] private Image vibrationImage;
+    [SerializeField] private Sprite soundEnableSprite;
+    [SerializeField] private Sprite soundDisableSprite;
+    [SerializeField] private Sprite vibrationEnableSprite;
+    [SerializeField] private Sprite vibrationDisableSprite;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -38,10 +56,36 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+        //Slider configurations
         _iqRightTargetImage.sprite = IQStageManager.Instance.GetCurrentStage().StageSprite;
-        iqRightTargetGameObject.SetActive(true);
-        iqLeftTargetGameObject.SetActive(false);
-        iqCurrentGameObjectKnob.SetActive(false);
+        iqRightTargetGameObject.Show();
+        iqLeftTargetGameObject.Hide();
+        iqCurrentGameObjectKnob.Hide();
+
+        //Scene panels configuration
+        gameMenuElements.HideInstantly();
+        settingsPanel.Hide();
+        settingsPanel.CompleteCurrentTheAnimation();
+
+        //Set Sound and vibration Images
+        if (PlayerDatabase.CanSound())
+        {
+            soundImage.sprite = soundEnableSprite;
+        }
+        else
+        {
+            soundImage.sprite = soundDisableSprite;
+        }
+
+        if (PlayerDatabase.CanVibrate())
+        {
+            vibrationImage.sprite = vibrationEnableSprite;
+        }
+        else
+        {
+            vibrationImage.sprite = vibrationDisableSprite;
+        }
+
     }
 
     private void OnEnable()
@@ -60,23 +104,69 @@ public class UIManager : MonoBehaviour
         ProjectEvents.StageDowned -= StageDowned;
         ProjectEvents.LastRatioChanged -= SliderLastRatioChanged;
         ProjectEvents.StagesPassedOverTheTarget -= StagesPassedOverTheTarget;
-
-
     }
+    
 
     public void StartGame()
     {
-        LevelManager.Instance.BeginGame();
-        
-        BeginnerPanel.SetActive(false);
-        joystick.SetActive(true);
+        startMenuElements.HideTheElements(() =>
+        {
+            gameMenuElements.ShowTheElements(() =>
+            {
+                LevelManager.Instance.BeginGame();
+                joystick.SetActive(true);
+            });
+        });
     }
 
     public void SetGoalText(int _goal)
     {
-        GoalText.gameObject.SetActive(true);
         GoalText.text = "Reach " + _goal;
     }
+
+    public void SettingToggle()
+    {
+        if (!_isSettingOpen)
+        {
+            settingsPanel.Show();
+            _isSettingOpen = !_isSettingOpen;
+        }
+        else
+        {
+            settingsPanel.Hide();
+            _isSettingOpen = !_isSettingOpen;
+        }
+    }
+
+    public void SoundToggle()
+    {
+        if (PlayerDatabase.CanSound())
+        {
+            PlayerDatabase.ChangeSound(false);
+            soundImage.sprite = soundDisableSprite;
+        }
+        else
+        {
+            PlayerDatabase.ChangeSound(true);
+            soundImage.sprite = soundEnableSprite;
+        }
+    }
+
+    public void VibrationToggle()
+    {
+        if (PlayerDatabase.CanVibrate())
+        {
+            PlayerDatabase.ChangeVibrate(false);
+            vibrationImage.sprite = vibrationDisableSprite;
+        }
+        else
+        {
+            PlayerDatabase.ChangeVibrate(true);
+            vibrationImage.sprite = vibrationEnableSprite;
+        }
+    }
+    
+    #region Slide Process
 
     public void PrepareSequenceForSlide()
     {
@@ -98,14 +188,12 @@ public class UIManager : MonoBehaviour
     
     private void StageUpped(Stage stage)
     {
-        Debug.Log("StageUpped");
-        
         var tween = DOTween.To(() => iqSlide.value, newValue => iqSlide.value = newValue, iqSlide.maxValue, animTime).OnComplete(() =>
         {
             _iqCurrentImageKnob.sprite = _iqRightTargetImage.sprite;
             _iqRightTargetImage.sprite = stage.StageSprite;
             _iqLeftTargetImage.sprite = stage.StageSprite;
-            iqCurrentGameObjectKnob.SetActive(true);
+            iqCurrentGameObjectKnob.Show();
             iqSlide.value = iqSlide.minValue;
         });
         _currentSequence.Append(tween);
@@ -113,8 +201,6 @@ public class UIManager : MonoBehaviour
     
     private void StageDowned(Stage stage)
     {
-        Debug.Log("StageDowned");
-        
         var tween = DOTween.To(() => iqSlide.value, newValue => iqSlide.value = newValue, iqSlide.minValue, animTime).OnComplete(() =>
         {
             _iqLeftTargetImage.sprite = _iqCurrentImageKnob.sprite;
@@ -122,7 +208,7 @@ public class UIManager : MonoBehaviour
             
             var previousStage = IQStageManager.Instance.GetPreviousStage(stage);
             if (previousStage == null)
-                iqCurrentGameObjectKnob.SetActive(false);
+                iqCurrentGameObjectKnob.Hide();
             else
                 _iqCurrentImageKnob.sprite = previousStage.StageSprite;
             
@@ -134,32 +220,31 @@ public class UIManager : MonoBehaviour
     
     private void SliderLastRatioChanged(float lastRatio)
     {
-        Debug.Log("SliderRatio: "+lastRatio);
-        
         var tween = DOTween.To(() => iqSlide.value, newValue => iqSlide.value = newValue, lastRatio, animTime);
         _currentSequence.Append(tween);
     }
     
     private void StagesPassedOverTheTarget()
     {
-        
-        Debug.Log("wrd");
         var tween = DOTween.To(() => iqSlide.value, newValue => iqSlide.value = newValue, iqSlide.maxValue, animTime).OnComplete(() =>
         {
             if (iqSlide.direction == Slider.Direction.LeftToRight)
             {
-                iqRightTargetGameObject.SetActive(false);
-                iqLeftTargetGameObject.SetActive(true);
+                iqRightTargetGameObject.Hide();
+                iqLeftTargetGameObject.Show();
                 iqSlide.direction = Slider.Direction.RightToLeft;
             }
             else
             {
-                iqRightTargetGameObject.SetActive(true);
-                iqLeftTargetGameObject.SetActive(false);
+                iqRightTargetGameObject.Show();
+                iqLeftTargetGameObject.Hide();
                 iqSlide.direction = Slider.Direction.LeftToRight;
             }
         });
         _currentSequence.Append(tween);
 
     }
+
+    #endregion
+    
 }

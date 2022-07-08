@@ -51,6 +51,13 @@ namespace GlobalTypes
         Up,
         Down
     }
+
+    public enum FeedBackType
+    {
+        Sound,
+        Vibration,
+        Normal
+    }
     
 
 }

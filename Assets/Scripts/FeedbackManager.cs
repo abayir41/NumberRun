@@ -1,12 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using GlobalTypes;
 using MoreMountains.Feedbacks;
 using UnityEngine;
 
 public class FeedbackManager : MonoBehaviour
 {
-    public static FeedbackManager instance;
+    public static FeedbackManager Instance;
     [SerializeField] private MMFeedbacks _Vibrate;
     [SerializeField] private MMFeedbacks _VibrateHigher;
     [SerializeField] private MMFeedbacks _CashOut;
@@ -46,8 +47,35 @@ public class FeedbackManager : MonoBehaviour
     public MMFeedbacks Land => _Land;
     void Awake()
     {
-        if (instance == null) instance = this;
+        if (Instance == null) Instance = this;
         else Destroy(gameObject);
+    }
+
+    public static void PlayFeedback(MMFeedbacks feedback, FeedBackType feedBackType)
+    {
+        switch (feedBackType)
+        {
+            case FeedBackType.Sound:
+                if(PlayerDatabase.CanSound())
+                    feedback.PlayFeedbacks();
+                break;
+            
+            case FeedBackType.Vibration:
+                if(PlayerDatabase.CanVibrate())
+                    feedback.PlayFeedbacks();
+                break;
+            
+            case FeedBackType.Normal:
+                feedback.PlayFeedbacks();    
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(feedBackType), feedBackType, null);
+        }
+    }
+
+    public static void StopFeedback(MMFeedbacks feedbacks)
+    {
+        feedbacks.StopFeedbacks();
     }
     
 }
