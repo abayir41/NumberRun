@@ -26,6 +26,8 @@ public class FeedbackManager : MonoBehaviour
     [SerializeField] private MMFeedbacks _Charge;
     [SerializeField] private MMFeedbacks _Jump;
     [SerializeField] private MMFeedbacks _Land;
+    [SerializeField] private MMFeedbacks failureVibration;
+    [SerializeField] private MMFeedbacks successVibration;
 
     public MMFeedbacks Vibrate => _Vibrate;
     public MMFeedbacks VibrateHigher => _VibrateHigher;
@@ -45,10 +47,39 @@ public class FeedbackManager : MonoBehaviour
     public MMFeedbacks Charge => _Charge;
     public MMFeedbacks Jump => _Jump;
     public MMFeedbacks Land => _Land;
+    public MMFeedbacks FailureVibration => failureVibration;
+    public MMFeedbacks SuccessVibration => successVibration;
+    
     void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+    }
+
+    private void OnEnable()
+    {
+        ProjectEvents.StageUppedAnimCompleted += StageUppedAnimCompleted;
+        ProjectEvents.StageDownAnimCompleted += StageDownAnimCompleted;
+        ProjectEvents.StagesPassedOverTheTargetAnimCompleted += StageUppedAnimCompleted;
+    }
+
+    
+
+    private void OnDisable()
+    {
+        ProjectEvents.StageUppedAnimCompleted -= StageUppedAnimCompleted;
+        ProjectEvents.StageDownAnimCompleted -= StageDownAnimCompleted;
+        ProjectEvents.StagesPassedOverTheTargetAnimCompleted -= StageUppedAnimCompleted;
+    }
+    
+    private void StageDownAnimCompleted()
+    {
+        FailureVibration.PlayFeedbacks();
+    }
+
+    private void StageUppedAnimCompleted()
+    {
+        SuccessVibration.PlayFeedbacks();
     }
 
     public static void PlayFeedback(MMFeedbacks feedback, FeedBackType feedBackType)
@@ -65,7 +96,7 @@ public class FeedbackManager : MonoBehaviour
                     feedback.PlayFeedbacks();
                 break;
             
-            case FeedBackType.Normal:
+            case FeedBackType.PlayAnyway:
                 feedback.PlayFeedbacks();    
                 break;
             default:

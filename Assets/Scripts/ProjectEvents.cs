@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using GlobalTypes;
-using UnityEngine;
 
 public static class ProjectEvents
 {
@@ -25,6 +22,17 @@ public static class ProjectEvents
 
     public static Action StagesPassedOverTheTarget;
 
+    #endregion
+
+    #region SliderAnimEvents
+
+    public static Action StageUppedAnimCompleted;
+
+    public static Action StageDownAnimCompleted;
+    
+    public static Action StagesPassedOverTheTargetAnimCompleted;
+
+    
     #endregion
 
 }

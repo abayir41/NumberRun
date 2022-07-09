@@ -56,7 +56,7 @@ namespace GlobalTypes
     {
         Sound,
         Vibration,
-        Normal
+        PlayAnyway
     }
     
 

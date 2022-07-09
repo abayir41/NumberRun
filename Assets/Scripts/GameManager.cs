@@ -93,7 +93,7 @@ public class GameManager : MonoBehaviour
     public void DieFeedback()
     {
         VibrateHigher();
-        FeedbackManager.PlayFeedback(FeedbackManager.Instance.DieFeedback, FeedBackType.Normal);
+        FeedbackManager.PlayFeedback(FeedbackManager.Instance.DieFeedback, FeedBackType.PlayAnyway);
     }
     public void ScalePlayer(bool isActive)
     {
@@ -101,7 +101,7 @@ public class GameManager : MonoBehaviour
         {
             FeedbackManager.Instance.ScalePlayer.GetComponent<MMFeedbackPosition>().InitialPosition =
                 PlayerController.Instance.transform.localPosition;
-            FeedbackManager.PlayFeedback(FeedbackManager.Instance.ScalePlayer, FeedBackType.Normal);
+            FeedbackManager.PlayFeedback(FeedbackManager.Instance.ScalePlayer, FeedBackType.PlayAnyway);
         }
         else
         {
@@ -118,7 +118,7 @@ public class GameManager : MonoBehaviour
     public void LoseFeedback(bool isActive)
     {
         if (isActive)
-            FeedbackManager.PlayFeedback(FeedbackManager.Instance.LoseFeedback, FeedBackType.Normal);
+            FeedbackManager.PlayFeedback(FeedbackManager.Instance.LoseFeedback, FeedBackType.PlayAnyway);
         else
         {
             FeedbackManager.StopFeedback(FeedbackManager.Instance.LoseFeedback);

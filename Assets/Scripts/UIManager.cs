@@ -149,6 +149,7 @@ public class UIManager : MonoBehaviour
         {
             PlayerDatabase.ChangeSound(true);
             soundImage.sprite = soundEnableSprite;
+            FeedbackManager.PlayFeedback(FeedbackManager.Instance.CoinCollectSound, FeedBackType.PlayAnyway);
         }
     }
 
@@ -163,6 +164,7 @@ public class UIManager : MonoBehaviour
         {
             PlayerDatabase.ChangeVibrate(true);
             vibrationImage.sprite = vibrationEnableSprite;
+            FeedbackManager.PlayFeedback(FeedbackManager.Instance.Vibrate, FeedBackType.PlayAnyway);
         }
     }
     
@@ -195,6 +197,8 @@ public class UIManager : MonoBehaviour
             _iqLeftTargetImage.sprite = stage.StageSprite;
             iqCurrentGameObjectKnob.Show();
             iqSlide.value = iqSlide.minValue;
+            
+            ProjectEvents.StageUppedAnimCompleted?.Invoke();
         });
         _currentSequence.Append(tween);
     }
@@ -213,6 +217,8 @@ public class UIManager : MonoBehaviour
                 _iqCurrentImageKnob.sprite = previousStage.StageSprite;
             
             iqSlide.value = iqSlide.maxValue;
+            
+            ProjectEvents.StageDownAnimCompleted?.Invoke();
         });
         _currentSequence.Append(tween);
 
@@ -240,6 +246,8 @@ public class UIManager : MonoBehaviour
                 iqLeftTargetGameObject.Hide();
                 iqSlide.direction = Slider.Direction.LeftToRight;
             }
+            
+            ProjectEvents.StagesPassedOverTheTargetAnimCompleted?.Invoke();
         });
         _currentSequence.Append(tween);
 

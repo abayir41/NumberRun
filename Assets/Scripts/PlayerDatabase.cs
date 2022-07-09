@@ -16,7 +16,7 @@ public class PlayerDatabase : MonoBehaviour
 
     public static void ChangeVibrate(bool makeEnable)
     {
-        PlayerPrefs.SetInt("_vibrate_",makeEnable ? 1 : 0);
+        PlayerPrefs.SetInt("_vibrate_",makeEnable ? 0 : 1);
     }
     
     public static bool CanSound()
@@ -26,7 +26,7 @@ public class PlayerDatabase : MonoBehaviour
 
     public static void ChangeSound(bool makeEnable)
     {
-        PlayerPrefs.SetInt("_sound_",makeEnable ? 1 : 0);
+        PlayerPrefs.SetInt("_sound_",makeEnable ? 0 : 1);
     }
     #endregion
 
