@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class IQStageManager : MonoBehaviour
 {
-    public static IQStageManager Instance;
+    public static IQStageManager Instance { get; private set; }
     
     public int startPoint;
     public int targetPoint;

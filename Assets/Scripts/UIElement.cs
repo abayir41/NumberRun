@@ -143,13 +143,13 @@ public class UIElement : MonoBehaviour
     
     public void EnableComponents()
     {
-        _enableDisableComponents.ForEach(behaviour => behaviour.enabled = true);
+        _enableDisableComponents?.ForEach(behaviour => behaviour.enabled = true);
         IsElementActive = true;
     }
     
     public void DisableComponents()
     {
-        _enableDisableComponents.ForEach(behaviour => behaviour.enabled = false);
+        _enableDisableComponents?.ForEach(behaviour => behaviour.enabled = false);
         IsElementActive = false;
     }
 
@@ -176,8 +176,11 @@ public class UIElement : MonoBehaviour
     
     public void CompleteCurrentTheAnimation()
     {
-        if(_currentAnimation.IsActive())
+        if (_currentAnimation.IsActive())
+        {
             _currentAnimation.Complete();
+            _currentAnimation.Kill();
+        }
         else
             Debug.LogWarning($"There is no animation playing: {gameObject.name}");    
     }
@@ -293,8 +296,6 @@ public class UIElement : MonoBehaviour
         if (_image != null)
         {
             _originalImgAlpha ??= _image.color.a;
-            
-            Debug.Log(_originalImgAlpha == null);
             
             _currentAnimation = _image.DOFade(0, Config.UIMoveAnimationDuration).SetEase(easeType).OnComplete(() => callback?.Invoke());
             return _currentAnimation;

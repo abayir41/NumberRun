@@ -53,10 +53,6 @@ public class GameManager : MonoBehaviour
 
         Config = config;
     }
-    private void Start()
-    {
-        
-    }
 
     #region Settings
 

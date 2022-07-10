@@ -29,7 +29,7 @@ public class PlayerHorizontalMover : MonoBehaviour
 
     public void Update()
     {
-        if (player.gameState == GameState.Started)
+        if (player.GameState == GameState.Started)
         {
             MoveH(sliderJoystick.HorizontalPosition);
         }

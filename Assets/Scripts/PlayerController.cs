@@ -18,6 +18,10 @@ public class PlayerController : MonoBehaviour
     public bool IsCompleted;
     public int total;
     private Animator animator;
+    
+    //Y axis animation
+    [SerializeField] private float animDurationOfYAxis;
+    [SerializeField] private float yAxisAmount;
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -35,19 +39,27 @@ public class PlayerController : MonoBehaviour
     {
         if (other.CompareTag("Number"))
         {
-            var number = other.GetComponent<Number>();
-            SetNumber(number.TotalAmount(),number.PlusTyped(), true);
+            if (!IsCompleted)
+            {
+                var number = other.GetComponent<Number>();
+                SetNumber(number.TotalAmount(),number.PlusTyped(), true);
+            }
             
             Destroy(other.gameObject);
         }
         if (other.CompareTag("Portal"))
         {
-            if(!IsPortalable) return;
-            IsPortalable = true;
-            var portal = other.GetComponent<Portal>();
-            SetNumber(portal.TotalAmount(),portal.PlusTyped(), true);
+            if (!IsCompleted)
+            {
+                if(!IsPortalable) return;
+                IsPortalable = true;
+                var portal = other.GetComponent<Portal>();
+                SetNumber(portal.TotalAmount(),portal.PlusTyped(), true);
+                IsPortalable = true;
+
+            }
             Destroy(other.transform.parent.gameObject);
-            IsPortalable = true;
+
         }
     }
 
@@ -255,6 +267,10 @@ public class PlayerController : MonoBehaviour
 
     void ScaleFeedBack()
     {
+        var seq = DOTween.Sequence();
+        seq.Append(transform.DOMoveY(transform.position.y + yAxisAmount, animDurationOfYAxis / 2));
+        seq.Append(transform.DOMoveY(transform.position.y, animDurationOfYAxis / 2));
+        
         GameManager.Instance.SplashSound();
         GameManager.Instance.ScalePlayer(false);
         transform.localRotation = Quaternion.Euler(0,0,0);

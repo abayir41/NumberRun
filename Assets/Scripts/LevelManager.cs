@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MoreMountains.Feel;
+using Random = UnityEngine.Random;
 
 public class LevelManager : MonoBehaviour
 {
@@ -40,6 +42,18 @@ public class LevelManager : MonoBehaviour
         }
         SpawnPortals();
         SpawnMobs();
+    }
+
+    private void OnEnable()
+    {
+        ProjectEvents.GameLost += GameLost;
+    }
+
+    
+
+    private void OnDisable()
+    {
+        ProjectEvents.GameLost -= GameLost;
     }
 
     public void BeginGame()
@@ -478,6 +492,14 @@ public class LevelManager : MonoBehaviour
             BeginnerPlayer.transform.parent.GetComponent<BeziePathFollower>().canMove = false;
             PlayerController.Instance.GetComponent<Animator>().enabled = true;
         }
+    }
+    
+    private void GameLost()
+    {
+        pathCube.GetComponent<BeziePathFollower>().canMove = false;
+        BeginnerPlayer.transform.parent.GetComponent<BeziePathFollower>().canMove = false;
+        PlayerController.Instance.GetComponent<Animator>().enabled = true;
+        
     }
 
     #endregion

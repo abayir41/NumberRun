@@ -1,3 +1,6 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
 using GlobalTypes;
 using TMPro;
@@ -16,16 +19,18 @@ public class UIManager : MonoBehaviour
     
     [Header("IQ Slider")] 
     [SerializeField] private float animTime;
-    [SerializeField] private Slider iqSlide;
-    [SerializeField] private UIElement iqCurrentGameObjectKnob;
-    [SerializeField] private UIElement iqLeftTargetGameObject;
-    [SerializeField] private UIElement iqRightTargetGameObject;
-    private Image _iqCurrentImageKnob;
-    private Image _iqLeftTargetImage;
-    private Image _iqRightTargetImage;
+    [SerializeField] private List<Slider> iqSlide;
+    [SerializeField] private List<UIElement> iqCurrentGameObjectKnob;
+    [SerializeField] private List<UIElement> iqLeftTargetGameObject;
+    [SerializeField] private List<UIElement> iqRightTargetGameObject;
+    private List<Image> _iqCurrentImageKnob;
+    private List<Image> _iqLeftTargetImage;
+    private List<Image> _iqRightTargetImage;
     private Sequence _currentSequence;
+    private float _iqSlideValue;
 
     [Header("Start Menu")] 
+    [SerializeField] private GameObject startMenu;
     [SerializeField] private UIElementGroup startMenuElements;
     [SerializeField] private UIElement tapToStart;
 
@@ -36,6 +41,19 @@ public class UIManager : MonoBehaviour
     [SerializeField] private UIElement settingsPanel;
     private bool _isSettingOpen = false;
 
+    [Header("End Menu")] 
+    [SerializeField] private GameObject endUI;
+    [SerializeField] private UIElement background;
+    [SerializeField] private UIElement successBackground;
+    [SerializeField] private UIElement successText;
+    [SerializeField] private UIElement timeText;
+    [SerializeField] private UIElement timeAsNumber;
+    [SerializeField] private UIElement emojiShine;
+    [SerializeField] private UIElement emoji;
+    [SerializeField] private UIElement tapToContinue;
+    [SerializeField] private UIElement tapToContinueButton;
+    [SerializeField] private UIElement iqSlideEndGame;
+
     [Header("Sound and Vibration")] 
     [SerializeField] private Image soundImage;
     [SerializeField] private Image vibrationImage;
@@ -43,30 +61,61 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Sprite soundDisableSprite;
     [SerializeField] private Sprite vibrationEnableSprite;
     [SerializeField] private Sprite vibrationDisableSprite;
+    
 
     void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        _iqCurrentImageKnob = iqCurrentGameObjectKnob.GetComponent<Image>();
-        _iqLeftTargetImage = iqLeftTargetGameObject.GetComponent<Image>();
-        _iqRightTargetImage = iqRightTargetGameObject.GetComponent<Image>();
+        _iqCurrentImageKnob = iqCurrentGameObjectKnob.ConvertAll(input => input.GetComponent<Image>());
+        _iqLeftTargetImage = iqLeftTargetGameObject.ConvertAll(input => input.GetComponent<Image>());
+        _iqRightTargetImage = iqRightTargetGameObject.ConvertAll(input => input.GetComponent<Image>());
     }
 
     private void Start()
     {
         //Slider configurations
-        _iqRightTargetImage.sprite = IQStageManager.Instance.GetCurrentStage().StageSprite;
-        iqRightTargetGameObject.Show();
-        iqLeftTargetGameObject.Hide();
-        iqCurrentGameObjectKnob.Hide();
+        foreach (var image in _iqRightTargetImage)
+            image.sprite = IQStageManager.Instance.GetCurrentStage().StageSprite;
+        
+        iqRightTargetGameObject.ForEach(element => element.Show());
+        iqLeftTargetGameObject.ForEach(element => element.Hide());
+        iqCurrentGameObjectKnob.ForEach(element => element.Hide());
 
         //Scene panels configuration
         gameMenuElements.HideInstantly();
         settingsPanel.Hide();
         settingsPanel.CompleteCurrentTheAnimation();
-
+        tapToStart.StartFadeLoop();
+        
+        //EndUI
+        background.Hide();
+        successBackground.Hide();
+        successText.Hide();
+        timeText.Hide();
+        timeAsNumber.Hide();
+        emojiShine.Hide();
+        emoji.Hide();
+        tapToContinue.Hide();
+        tapToContinueButton.Hide();
+        iqSlideEndGame.Hide();
+        
+        background.CompleteCurrentTheAnimation();
+        successBackground.CompleteCurrentTheAnimation();
+        successText.CompleteCurrentTheAnimation();
+        timeText.CompleteCurrentTheAnimation();
+        timeAsNumber.CompleteCurrentTheAnimation();
+        emojiShine.CompleteCurrentTheAnimation();
+        emoji.CompleteCurrentTheAnimation();
+        tapToContinue.CompleteCurrentTheAnimation();
+        tapToContinueButton.CompleteCurrentTheAnimation();
+        iqSlideEndGame.CompleteCurrentTheAnimation();
+        
+        //Prevent UI collision
+        endUI.SetActive(false);
+        
+        
         //Set Sound and vibration Images
         if (PlayerDatabase.CanSound())
         {
@@ -94,9 +143,11 @@ public class UIManager : MonoBehaviour
         ProjectEvents.StageDowned += StageDowned;
         ProjectEvents.LastRatioChanged += SliderLastRatioChanged;
         ProjectEvents.StagesPassedOverTheTarget += StagesPassedOverTheTarget;
+        ProjectEvents.GameWin += GameWin;
     }
 
-    
+  
+
 
     private void OnDisable()
     {
@@ -104,19 +155,66 @@ public class UIManager : MonoBehaviour
         ProjectEvents.StageDowned -= StageDowned;
         ProjectEvents.LastRatioChanged -= SliderLastRatioChanged;
         ProjectEvents.StagesPassedOverTheTarget -= StagesPassedOverTheTarget;
+        ProjectEvents.GameWin -= GameWin;
     }
     
 
     public void StartGame()
     {
-        startMenuElements.HideTheElements(() =>
+        if (_isSettingOpen)
         {
-            gameMenuElements.ShowTheElements(() =>
+            SettingToggle(() =>
             {
-                LevelManager.Instance.BeginGame();
-                joystick.SetActive(true);
+                startMenuElements.HideTheElements(() =>
+                {
+                    gameMenuElements.ShowTheElements(() =>
+                    {
+                        LevelManager.Instance.BeginGame();
+                        joystick.SetActive(true);
+                    });
+                });
             });
+        }
+        else
+        {
+            startMenuElements.HideTheElements(() =>
+            {
+                gameMenuElements.ShowTheElements(() =>
+                {
+                    LevelManager.Instance.BeginGame();
+                    joystick.SetActive(true);
+                });
+            });
+        }
+        
+    }
+    
+    private void GameWin()
+    {
+        startMenu.SetActive(false);
+        endUI.SetActive(true);
+        gameMenuElements.HideTheElements(() =>
+        {
+            StartCoroutine(EndGameAnim());    
         });
+    }
+
+    private IEnumerator EndGameAnim()
+    {
+        background.Show();
+        
+        yield return new WaitForSeconds(0.10f);
+        successBackground.Show();
+        successText.Show();
+        
+        yield return new WaitForSeconds(0.10f);
+        timeText.Show();
+        yield return new WaitForSeconds(0.5f);
+        timeAsNumber.Show();
+        
+        yield return new WaitForSeconds(0.5f);
+        iqSlideEndGame.Show();
+
     }
 
     public void SetGoalText(int _goal)
@@ -134,6 +232,20 @@ public class UIManager : MonoBehaviour
         else
         {
             settingsPanel.Hide();
+            _isSettingOpen = !_isSettingOpen;
+        }
+    }
+    
+    public void SettingToggle(Action callback)
+    {
+        if (!_isSettingOpen)
+        {
+            settingsPanel.Show(callback);
+            _isSettingOpen = !_isSettingOpen;
+        }
+        else
+        {
+            settingsPanel.Hide(callback);
             _isSettingOpen = !_isSettingOpen;
         }
     }
@@ -190,13 +302,20 @@ public class UIManager : MonoBehaviour
     
     private void StageUpped(Stage stage)
     {
-        var tween = DOTween.To(() => iqSlide.value, newValue => iqSlide.value = newValue, iqSlide.maxValue, animTime).OnComplete(() =>
+        var tween = DOTween.To(() => _iqSlideValue,
+                newValue => { _iqSlideValue = newValue; iqSlide.ForEach(slider => slider.value = newValue);},
+                iqSlide[0].maxValue, animTime)
+            .OnComplete(() =>
         {
-            _iqCurrentImageKnob.sprite = _iqRightTargetImage.sprite;
-            _iqRightTargetImage.sprite = stage.StageSprite;
-            _iqLeftTargetImage.sprite = stage.StageSprite;
-            iqCurrentGameObjectKnob.Show();
-            iqSlide.value = iqSlide.minValue;
+            for (var i = 0; i < _iqCurrentImageKnob.Count; i++)
+                _iqCurrentImageKnob[i].sprite = _iqRightTargetImage[i].sprite;
+            
+            _iqRightTargetImage.ForEach(image => image.sprite = stage.StageSprite);
+            _iqLeftTargetImage.ForEach(image => image.sprite = stage.StageSprite);
+
+            iqCurrentGameObjectKnob.ForEach(element => element.Show());
+
+            iqSlide.ForEach(slider => slider.value = slider.minValue);
             
             ProjectEvents.StageUppedAnimCompleted?.Invoke();
         });
@@ -205,46 +324,67 @@ public class UIManager : MonoBehaviour
     
     private void StageDowned(Stage stage)
     {
-        var tween = DOTween.To(() => iqSlide.value, newValue => iqSlide.value = newValue, iqSlide.minValue, animTime).OnComplete(() =>
-        {
-            _iqLeftTargetImage.sprite = _iqCurrentImageKnob.sprite;
-            _iqRightTargetImage.sprite = _iqCurrentImageKnob.sprite;
-            
-            var previousStage = IQStageManager.Instance.GetPreviousStage(stage);
-            if (previousStage == null)
-                iqCurrentGameObjectKnob.Hide();
-            else
-                _iqCurrentImageKnob.sprite = previousStage.StageSprite;
-            
-            iqSlide.value = iqSlide.maxValue;
-            
-            ProjectEvents.StageDownAnimCompleted?.Invoke();
-        });
+        var tween = DOTween.To(() => _iqSlideValue,
+                newValue =>
+                {
+                    _iqSlideValue = newValue;
+                    iqSlide.ForEach(slider => slider.value = newValue);
+                },
+                iqSlide[0].minValue, animTime)
+            .OnComplete(() =>
+            {
+
+                for (var i = 0; i < _iqLeftTargetImage.Count; i++)
+                    _iqLeftTargetImage[i].sprite = _iqCurrentImageKnob[i].sprite;
+
+                for (var i = 0; i < _iqRightTargetImage.Count; i++)
+                    _iqRightTargetImage[i].sprite = _iqCurrentImageKnob[i].sprite;
+
+                var previousStage = IQStageManager.Instance.GetPreviousStage(stage);
+                if (previousStage == null)
+                    iqCurrentGameObjectKnob.ForEach(element => element.Hide());
+                else
+                    _iqCurrentImageKnob.ForEach(image => image.sprite = stage.StageSprite);
+
+                iqSlide.ForEach(slider => slider.value = slider.maxValue);
+
+                ProjectEvents.StageDownAnimCompleted?.Invoke();
+            });
         _currentSequence.Append(tween);
 
     }
     
     private void SliderLastRatioChanged(float lastRatio)
     {
-        var tween = DOTween.To(() => iqSlide.value, newValue => iqSlide.value = newValue, lastRatio, animTime);
+        var tween = DOTween.To(() => _iqSlideValue,
+            newValue =>
+            {
+                _iqSlideValue = newValue;
+                iqSlide.ForEach(slider => slider.value = newValue);
+            },
+            lastRatio, animTime);
         _currentSequence.Append(tween);
     }
     
     private void StagesPassedOverTheTarget()
     {
-        var tween = DOTween.To(() => iqSlide.value, newValue => iqSlide.value = newValue, iqSlide.maxValue, animTime).OnComplete(() =>
+        var tween = DOTween.To(() => _iqSlideValue, newValue =>
         {
-            if (iqSlide.direction == Slider.Direction.LeftToRight)
+            _iqSlideValue = newValue;
+            iqSlide.ForEach(slider => slider.value = newValue);
+        }, iqSlide[0].maxValue, animTime).OnComplete(() =>
+        {
+            if (iqSlide[0].direction == Slider.Direction.LeftToRight)
             {
-                iqRightTargetGameObject.Hide();
-                iqLeftTargetGameObject.Show();
-                iqSlide.direction = Slider.Direction.RightToLeft;
+                iqRightTargetGameObject.ForEach(element => element.Hide());
+                iqLeftTargetGameObject.ForEach(element => element.Show());
+                iqSlide.ForEach(slider => slider.direction = Slider.Direction.RightToLeft);
             }
             else
             {
-                iqRightTargetGameObject.Show();
-                iqLeftTargetGameObject.Hide();
-                iqSlide.direction = Slider.Direction.LeftToRight;
+                iqRightTargetGameObject.ForEach(element => element.Show());
+                iqLeftTargetGameObject.ForEach(element => element.Hide());
+                iqSlide.ForEach(slider => slider.direction = Slider.Direction.LeftToRight);
             }
             
             ProjectEvents.StagesPassedOverTheTargetAnimCompleted?.Invoke();

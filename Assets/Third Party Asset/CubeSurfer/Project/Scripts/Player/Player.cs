@@ -7,7 +7,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public event Action Died;
-    public GameState gameState { get; private set; } = GameState.NotStarted;
+    public GameState GameState { get; private set; } = GameState.NotStarted;
 
     [SerializeField] public BeziePathFollower pathFolower;
     [SerializeField] private SliderJoystick SliderJoystick;
@@ -26,7 +26,7 @@ public class Player : MonoBehaviour
         isMain = _isMain;
         if (isMain)
         {
-            gameState = GameState.Started;
+            GameState = GameState.Started;
             pathFolower.canMove = true;
             pathFolower.SetSpeed(GameManager.Instance.speed);
             pathFolower.PathCompleted += LevelComplete;
@@ -36,7 +36,7 @@ public class Player : MonoBehaviour
 
     public void DiePlayer()
     {
-        gameState = GameState.NotStarted;
+        GameState = GameState.NotStarted;
         pathFolower.canMove = false;
     }
 
@@ -57,24 +57,24 @@ public class Player : MonoBehaviour
     public void LevelComplete()
     {
         LevelManager.Instance.PathCompleted();
-        gameState = GameState.LevelEnded;
+        GameState = GameState.LevelEnded;
         Died?.Invoke();
     }
 
     public void Die()
     {
         
-        gameState = GameState.PlayerDied;
+        GameState = GameState.PlayerDied;
         Died?.Invoke();
     }
 
     public void LevelDone()
     {
-        gameState = GameState.LevelEnded;
+        GameState = GameState.LevelEnded;
     }
 
     private void GameStart()
     {
-        gameState = GameState.Started;
+        GameState = GameState.Started;
     }
 }
