@@ -11,6 +11,8 @@ public class PlayerController : MonoBehaviour
 {
     public static PlayerController Instance;
 
+    private static GameConfig Config => GameManager.Config;
+    
     public Transform spawnPos;
     public int firstNumber = 12;
     public List<GameObject> addedNumbers;
@@ -279,5 +281,22 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
+    public IEnumerator EndUITimeDecrease()
+    {
+        var time = LevelManager.Instance.LevelTime;
+        var timeEquivalentScore = 1 / Config.TimeEquivalentScore;
+        var scoreAsFloat = (float) total;
+        
+        while (time > 0)
+        {
+            time -= 1;
+            scoreAsFloat -= timeEquivalentScore;
+            ProjectEvents.ScoreChanged?.Invoke(scoreAsFloat);
+            ProjectEvents.TimeChanged?.Invoke(time);
+            yield return new WaitForSeconds(Config.UITimeDecreasingTime);
+        }
+
+        StartCoroutine(UIManager.Instance.EndGameAnimUIEmojiPart());
+    }
 
 }

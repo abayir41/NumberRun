@@ -12,7 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb5bfc902990cae4abbac6d088bbc558, type: 3}
   m_Name: Config
   m_EditorClassIdentifier: 
+  timeEquivalentScore: 5
   uiMoveAnimationDuration: 0.2
   uiFadeOutAnimationDuration: 0.2
   uiFadeLoopAnimationDuration: 2
   uiMinimizeTime: 0.2
+  uiTimeDecreasingTime: 0.2
+  uiScaleLoopDuration: 2
+  uiRotationLoopDuration: 8

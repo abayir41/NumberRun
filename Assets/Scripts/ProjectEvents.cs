@@ -8,7 +8,9 @@ public static class ProjectEvents
     public static Action GameLost;
 
     //Passing the new score
-    public static Action<int> ScoreChanged;
+    public static Action<float> ScoreChanged;
+    //Passing new time
+    public static Action<int> TimeChanged;
 
     #region IQStages
 

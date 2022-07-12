@@ -5,6 +5,7 @@ using DG.Tweening;
 using GlobalTypes;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -53,6 +54,17 @@ public class UIManager : MonoBehaviour
     [SerializeField] private UIElement tapToContinue;
     [SerializeField] private UIElement tapToContinueButton;
     [SerializeField] private UIElement iqSlideEndGame;
+    [SerializeField] private Image emojiImage;
+    [SerializeField] private TextMeshProUGUI timeTextAsNumber;
+
+    [Header("Fail Menu")] 
+    [SerializeField] private GameObject failUI;
+    [SerializeField] private UIElement backgroundFailUI;
+    [SerializeField] private UIElement failBackground;
+    [SerializeField] private UIElement failText;
+    [SerializeField] private UIElement emojiFail;
+    [SerializeField] private UIElement tapToContinueFailUI;
+    [SerializeField] private UIElement tapToContinueButtonFailUI;
 
     [Header("Sound and Vibration")] 
     [SerializeField] private Image soundImage;
@@ -112,8 +124,24 @@ public class UIManager : MonoBehaviour
         tapToContinueButton.CompleteCurrentTheAnimation();
         iqSlideEndGame.CompleteCurrentTheAnimation();
         
+        //FailUI
+        backgroundFailUI.Hide();
+        failBackground.Hide();
+        failText.Hide();
+        emojiFail.Hide();
+        tapToContinueFailUI.Hide();
+        tapToContinueButtonFailUI.Hide();
+        
+        backgroundFailUI.CompleteCurrentTheAnimation();
+        failText.CompleteCurrentTheAnimation();
+        failBackground.CompleteCurrentTheAnimation();
+        emojiFail.CompleteCurrentTheAnimation();
+        tapToContinueFailUI.CompleteCurrentTheAnimation();
+        tapToContinueButtonFailUI.CompleteCurrentTheAnimation();
+        
         //Prevent UI collision
         endUI.SetActive(false);
+        failUI.SetActive(false);
         
         
         //Set Sound and vibration Images
@@ -144,9 +172,11 @@ public class UIManager : MonoBehaviour
         ProjectEvents.LastRatioChanged += SliderLastRatioChanged;
         ProjectEvents.StagesPassedOverTheTarget += StagesPassedOverTheTarget;
         ProjectEvents.GameWin += GameWin;
+        ProjectEvents.TimeChanged += TimeChanged;
+        ProjectEvents.GameLost += GameLost;
     }
 
-  
+    
 
 
     private void OnDisable()
@@ -155,39 +185,13 @@ public class UIManager : MonoBehaviour
         ProjectEvents.StageDowned -= StageDowned;
         ProjectEvents.LastRatioChanged -= SliderLastRatioChanged;
         ProjectEvents.StagesPassedOverTheTarget -= StagesPassedOverTheTarget;
-        ProjectEvents.GameWin -= GameWin;
+        ProjectEvents.GameWin -= GameWin;   
+        ProjectEvents.TimeChanged -= TimeChanged;
+        ProjectEvents.GameLost -= GameLost;
     }
     
 
-    public void StartGame()
-    {
-        if (_isSettingOpen)
-        {
-            SettingToggle(() =>
-            {
-                startMenuElements.HideTheElements(() =>
-                {
-                    gameMenuElements.ShowTheElements(() =>
-                    {
-                        LevelManager.Instance.BeginGame();
-                        joystick.SetActive(true);
-                    });
-                });
-            });
-        }
-        else
-        {
-            startMenuElements.HideTheElements(() =>
-            {
-                gameMenuElements.ShowTheElements(() =>
-                {
-                    LevelManager.Instance.BeginGame();
-                    joystick.SetActive(true);
-                });
-            });
-        }
-        
-    }
+
     
     private void GameWin()
     {
@@ -198,7 +202,44 @@ public class UIManager : MonoBehaviour
             StartCoroutine(EndGameAnim());    
         });
     }
+    
+    private void GameLost()
+    {
+        startMenu.SetActive(false);
+        failUI.SetActive(true);
+        gameMenuElements.HideTheElements(() =>
+        {
+            StartCoroutine(FailGameAnim());    
+        });
+    }
+    
+    private void TimeChanged(int time)
+    {
+        timeTextAsNumber.text = "" + time;
+    }
 
+    private IEnumerator FailGameAnim()
+    {
+        backgroundFailUI.Show();
+        
+        yield return new WaitForSeconds(0.20f);
+        failBackground.Show();
+        failText.Show();
+        
+        yield return new WaitForSeconds(0.20f);
+        emojiFail.Show(() =>
+        {
+            emojiFail.StartScaleLoop();
+        });
+        
+        yield return new WaitForSeconds(0.20f);
+        tapToContinueFailUI.Show(() =>
+        {
+            tapToContinueFailUI.StartFadeLoop();
+        });
+        tapToContinueButtonFailUI.Show();
+    }
+    
     private IEnumerator EndGameAnim()
     {
         background.Show();
@@ -209,11 +250,37 @@ public class UIManager : MonoBehaviour
         
         yield return new WaitForSeconds(0.10f);
         timeText.Show();
+        
         yield return new WaitForSeconds(0.5f);
         timeAsNumber.Show();
         
         yield return new WaitForSeconds(0.5f);
-        iqSlideEndGame.Show();
+        iqSlideEndGame.Show(() =>
+        {
+            StartCoroutine(PlayerController.Instance.EndUITimeDecrease());
+        });
+    }
+
+    public IEnumerator EndGameAnimUIEmojiPart()
+    {
+        emojiImage.sprite = IQStageManager.Instance.GetCurrentStage().StageSprite;
+        
+        emojiShine.Show(() =>
+        {
+            emojiShine.StartRotationLoop();
+        });
+        yield return new WaitForSeconds(0.1f);
+        emoji.Show(() =>
+        {
+            emoji.StartScaleLoop();
+        });
+
+        yield return new WaitForSeconds(0.3f);
+        tapToContinue.Show(() =>
+        {
+            tapToContinue.StartFadeLoop();
+        });
+        tapToContinueButton.Show();
 
     }
 
@@ -222,6 +289,13 @@ public class UIManager : MonoBehaviour
         GoalText.text = "Reach " + _goal;
     }
 
+    #region Button Events
+
+    public void NextLevel()
+    {
+        SceneManager.LoadScene(0); 
+    }
+    
     public void SettingToggle()
     {
         if (!_isSettingOpen)
@@ -279,6 +353,39 @@ public class UIManager : MonoBehaviour
             FeedbackManager.PlayFeedback(FeedbackManager.Instance.Vibrate, FeedBackType.PlayAnyway);
         }
     }
+    
+    public void StartGame()
+    {
+        if (_isSettingOpen)
+        {
+            SettingToggle(() =>
+            {
+                startMenuElements.HideTheElements(() =>
+                {
+                    gameMenuElements.ShowTheElements(() =>
+                    {
+                        LevelManager.Instance.BeginGame();
+                        joystick.SetActive(true);
+                    });
+                });
+            });
+        }
+        else
+        {
+            startMenuElements.HideTheElements(() =>
+            {
+                gameMenuElements.ShowTheElements(() =>
+                {
+                    LevelManager.Instance.BeginGame();
+                    joystick.SetActive(true);
+                });
+            });
+        }
+        
+    }
+
+    #endregion
+
     
     #region Slide Process
 
@@ -344,7 +451,7 @@ public class UIManager : MonoBehaviour
                 if (previousStage == null)
                     iqCurrentGameObjectKnob.ForEach(element => element.Hide());
                 else
-                    _iqCurrentImageKnob.ForEach(image => image.sprite = stage.StageSprite);
+                    _iqCurrentImageKnob.ForEach(image => image.sprite = previousStage.StageSprite);
 
                 iqSlide.ForEach(slider => slider.value = slider.maxValue);
 

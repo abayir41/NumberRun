@@ -376,7 +376,7 @@ public class UIElement : MonoBehaviour
     
     #endregion
 
-    #region FadeLoop
+    #region Loops
 
     public Tweener StartFadeLoop()
     {
@@ -394,6 +394,28 @@ public class UIElement : MonoBehaviour
         
         Debug.LogWarning($"Calling this function is not suitable for this object: {gameObject.name}");
         return null;
+    }
+
+    public Tweener StartScaleLoop()
+    {
+        _currentAnimation = _rectTransform.DOScale(_rectTransform.localScale * 1.1f, Config.UIScaleLoopDuration).SetLoops(-1, LoopType.Yoyo);
+        return _currentAnimation;
+    }
+    
+    public Tweener StartScaleLoop(float magnitudeScaling)
+    {
+        _currentAnimation = _rectTransform.DOScale(_rectTransform.localScale * magnitudeScaling, Config.UIScaleLoopDuration).SetLoops(-1, LoopType.Yoyo);
+        return _currentAnimation;
+    }
+
+    public Tweener StartRotationLoop(bool counterClockwise = false)
+    {
+        _currentAnimation = _rectTransform
+            .DORotate(_rectTransform.eulerAngles + new Vector3(0, 0, 180 * (counterClockwise?-1:1)), Config.UIRotationLoopDuration)
+            .SetEase(Ease.Linear)
+            .SetLoops(-1, LoopType.Restart);
+
+        return _currentAnimation;
     }
 
     #endregion

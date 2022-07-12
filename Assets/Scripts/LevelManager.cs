@@ -8,6 +8,8 @@ using Random = UnityEngine.Random;
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance;
+    
+    
     [Header("Beginner")] 
     public int curGameType;
     public GameObject BeginnerPlayer;
@@ -25,7 +27,12 @@ public class LevelManager : MonoBehaviour
     public Transform PortalSpawnPosesParent;
     [Header("Final")] 
     public GameObject confetti;
-
+    
+    
+    public int LevelTime => (int) _timeCounter;
+    private float _timeCounter;
+    private bool _isGamePlaying;
+    
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -44,16 +51,28 @@ public class LevelManager : MonoBehaviour
         SpawnMobs();
     }
 
+    private void Update()
+    {
+        if (_isGamePlaying)
+        {
+            _timeCounter += Time.deltaTime;
+            ProjectEvents.TimeChanged?.Invoke(LevelTime);
+        }
+    }
+
     private void OnEnable()
     {
         ProjectEvents.GameLost += GameLost;
+        ProjectEvents.GameWin += GameWin;
     }
 
     
 
+
     private void OnDisable()
     {
         ProjectEvents.GameLost -= GameLost;
+        ProjectEvents.GameWin -= GameWin;
     }
 
     public void BeginGame()
@@ -61,6 +80,7 @@ public class LevelManager : MonoBehaviour
         LevelGoal();
         StartPlayer();
         StartCube();
+        _isGamePlaying = true;
     }
 
     void StartPlayer()
@@ -499,7 +519,12 @@ public class LevelManager : MonoBehaviour
         pathCube.GetComponent<BeziePathFollower>().canMove = false;
         BeginnerPlayer.transform.parent.GetComponent<BeziePathFollower>().canMove = false;
         PlayerController.Instance.GetComponent<Animator>().enabled = true;
-        
+        _isGamePlaying = false;
+    }
+    
+    private void GameWin()
+    {
+        _isGamePlaying = false;
     }
 
     #endregion

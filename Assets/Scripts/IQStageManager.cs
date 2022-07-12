@@ -16,7 +16,7 @@ public class IQStageManager : MonoBehaviour
     private List<Stage> _iqStages;
     private Stage _currentStage;
     private float _currentRatioOfBetweenStages;
-    private int _score;
+    private float _score;
 
     //this stages will be used for calculations
     private List<Stage> _imaginalStages;
@@ -56,7 +56,7 @@ public class IQStageManager : MonoBehaviour
         ProjectEvents.ScoreChanged -= ScoreChanged;
     }
 
-    private void ScoreChanged(int newScore)
+    private void ScoreChanged(float newScore)
     {
         var currentAbsoluteDistance = targetPoint - Math.Min(targetPoint, Math.Abs(_score - targetPoint));
         
@@ -97,7 +97,7 @@ public class IQStageManager : MonoBehaviour
         
     }
 
-    private Stage WhatStageEquivalentForScore(int score)
+    private Stage WhatStageEquivalentForScore(float score)
     {
         foreach (var stage in _iqStages)
         {
@@ -118,14 +118,14 @@ public class IQStageManager : MonoBehaviour
         throw new Exception($"There is no equivalent stage for this score: {score}");
     }
 
-    private bool IsScoreInRightSide(int score)
+    private bool IsScoreInRightSide(float score)
     {
         return score > targetPoint;
     }
 
     public Stage GetCurrentStage()
     {
-        return _iqStages.First();
+        return _currentStage;
     }
 
     public Stage GetPreviousStage(Stage stage)
