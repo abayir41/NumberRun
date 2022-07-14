@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Config
   m_EditorClassIdentifier: 
   timeEquivalentScore: 5
-  uiMoveAnimationDuration: 0.2
+  uiMoveAnimationDuration: 0.4
   uiFadeOutAnimationDuration: 0.2
   uiFadeLoopAnimationDuration: 2
   uiMinimizeTime: 0.2

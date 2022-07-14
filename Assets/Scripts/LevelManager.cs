@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using MoreMountains.Feel;
 using Random = UnityEngine.Random;
@@ -27,6 +28,9 @@ public class LevelManager : MonoBehaviour
     public Transform PortalSpawnPosesParent;
     [Header("Final")] 
     public GameObject confetti;
+
+    [Header("Envoriment")] 
+    [SerializeField] private List<Transform> environmentNumbers;
     
     
     public int LevelTime => (int) _timeCounter;
@@ -49,6 +53,73 @@ public class LevelManager : MonoBehaviour
         }
         SpawnPortals();
         SpawnMobs();
+        LevelGoal();
+        
+        
+        //Animating environment
+        foreach (var number in environmentNumbers)
+        {
+            var numberPosition = number.localScale;
+            var fatScale = new Vector3(numberPosition.x * 1.1f, numberPosition.y * 0.9f, numberPosition.z);
+            var skinnyScale = new Vector3(numberPosition.x * 0.9f, numberPosition.y * 1.1f, numberPosition.z);
+
+            //50 50 possibility
+            if (Random.Range(0.0f, 10f) > 5)
+            {
+                number.localScale = fatScale;
+                number.DOScale(skinnyScale, Random.Range(2.5f,3.5f)).SetLoops(-1, LoopType.Yoyo).Goto(Random.Range(0f,5f), true);
+            }
+            else
+            {
+                number.localScale = fatScale;
+                number.DOScale(skinnyScale, Random.Range(2.5f,3.5f)).SetLoops(-1, LoopType.Yoyo).Goto(Random.Range(0f,5f), true);
+            }
+        }
+
+    }
+
+    private void SpawnEnvironmentNumber(int number, Transform parent, Material matOfNumber)
+    {
+        var tempList = new List<int>();
+        
+        while (number > 0)
+        {
+            var numberToAdd = number % 10;
+            
+            tempList.Add(numberToAdd);
+            
+            number /= 10; 
+        }
+        
+        var reverseCount = tempList.Count;
+
+        var isSingle = reverseCount % 2 != 0;
+
+        var totalThree = reverseCount / 2;
+
+        var zeroLeftCount = totalThree * GameManager.Instance.numberBetweenSpace;
+
+        var totalTwo = zeroLeftCount + (Mathf.Abs(GameManager.Instance.numberBetweenSpace) / 2f);
+
+        var increaseRate = Mathf.Abs(GameManager.Instance.numberBetweenSpace);
+        
+        for (int i = 0; i < tempList.Count; i++)
+        {
+            reverseCount--;
+            var temObj = Instantiate(Resources.Load<GameObject>("Numbers/" + tempList[reverseCount]));
+            temObj.transform.SetParent(transform);
+
+            if (!isSingle)
+            {
+                //temObj.transform.localPosition = new Vector3(totalTwo, spawnPos.localPosition.y, spawnPos.localPosition.z);
+                totalTwo += increaseRate;
+            }
+            else
+            {
+                //temObj.transform.localPosition = new Vector3(zeroLeftCount, spawnPos.localPosition.y, spawnPos.localPosition.z);
+                zeroLeftCount += increaseRate;
+            }
+        }
     }
 
     private void Update()
@@ -77,7 +148,6 @@ public class LevelManager : MonoBehaviour
 
     public void BeginGame()
     {
-        LevelGoal();
         StartPlayer();
         StartCube();
         _isGamePlaying = true;

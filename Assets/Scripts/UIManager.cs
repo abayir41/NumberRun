@@ -16,8 +16,7 @@ public class UIManager : MonoBehaviour
     public GameObject BeginnerPanel;
     [Header("Game Panel")]
     public TextMeshProUGUI GoalText;
-    [SerializeField] private UIElement goalTextUIElement;
-    
+
     [Header("IQ Slider")] 
     [SerializeField] private float animTime;
     [SerializeField] private List<Slider> iqSlide;
@@ -34,9 +33,15 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject startMenu;
     [SerializeField] private UIElementGroup startMenuElements;
     [SerializeField] private UIElement tapToStart;
+    [SerializeField] private UIElement targetTextElementAnim;
+    [SerializeField] private RectTransform targetRectAnim;
+    [SerializeField] private TextMeshProUGUI targetTextAnim;
+    [SerializeField] private AnimationCurve targetTextAnimCurve;
+    private Vector3 _cachedPosOfTargetElement;
 
     [Header("Game Menu")] 
     [SerializeField] private UIElementGroup gameMenuElements;
+    [SerializeField] private TextMeshProUGUI timeTextInGame;
 
     [Header("Settings Menu")] 
     [SerializeField] private UIElement settingsPanel;
@@ -83,6 +88,8 @@ public class UIManager : MonoBehaviour
         _iqCurrentImageKnob = iqCurrentGameObjectKnob.ConvertAll(input => input.GetComponent<Image>());
         _iqLeftTargetImage = iqLeftTargetGameObject.ConvertAll(input => input.GetComponent<Image>());
         _iqRightTargetImage = iqRightTargetGameObject.ConvertAll(input => input.GetComponent<Image>());
+
+        _cachedPosOfTargetElement = targetRectAnim.position;
     }
 
     private void Start()
@@ -100,6 +107,8 @@ public class UIManager : MonoBehaviour
         settingsPanel.Hide();
         settingsPanel.CompleteCurrentTheAnimation();
         tapToStart.StartFadeLoop();
+        targetTextElementAnim.Hide();
+        targetTextElementAnim.CompleteCurrentTheAnimation();
         
         //EndUI
         background.Hide();
@@ -175,10 +184,7 @@ public class UIManager : MonoBehaviour
         ProjectEvents.TimeChanged += TimeChanged;
         ProjectEvents.GameLost += GameLost;
     }
-
     
-
-
     private void OnDisable()
     {
         ProjectEvents.StageUpped -= StageUpped;
@@ -189,9 +195,6 @@ public class UIManager : MonoBehaviour
         ProjectEvents.TimeChanged -= TimeChanged;
         ProjectEvents.GameLost -= GameLost;
     }
-    
-
-
     
     private void GameWin()
     {
@@ -216,8 +219,17 @@ public class UIManager : MonoBehaviour
     private void TimeChanged(int time)
     {
         timeTextAsNumber.text = "" + time;
+        timeTextInGame.text = "Time: " + time;
+    }
+    
+    public void SetGoalText(int _goal)
+    {
+        GoalText.text = "Target: " + _goal;
+        targetTextAnim.text = "Target: " + _goal;
     }
 
+    #region Speacial Animations
+    
     private IEnumerator FailGameAnim()
     {
         backgroundFailUI.Show();
@@ -284,11 +296,13 @@ public class UIManager : MonoBehaviour
 
     }
 
-    public void SetGoalText(int _goal)
+    private IEnumerator GameStartAnim()
     {
-        GoalText.text = "Reach " + _goal;
+        yield return null;
     }
 
+    #endregion
+    
     #region Button Events
 
     public void NextLevel()
@@ -362,6 +376,25 @@ public class UIManager : MonoBehaviour
             {
                 startMenuElements.HideTheElements(() =>
                 {
+                    targetRectAnim.DOMove(_cachedPosOfTargetElement, 2f).SetEase(targetTextAnimCurve).OnComplete(() =>
+                    {
+                        targetTextElementAnim.Hide();
+                        gameMenuElements.ShowTheElements(() =>
+                        {
+                            LevelManager.Instance.BeginGame();
+                            joystick.SetActive(true);
+                        });
+                    });
+                });
+            });
+        }
+        else
+        {
+            startMenuElements.HideTheElements(() =>
+            { 
+                targetRectAnim.DOMove(_cachedPosOfTargetElement, 2f).SetEase(targetTextAnimCurve).OnComplete(() =>
+                {
+                    targetTextElementAnim.Hide();
                     gameMenuElements.ShowTheElements(() =>
                     {
                         LevelManager.Instance.BeginGame();
@@ -370,22 +403,10 @@ public class UIManager : MonoBehaviour
                 });
             });
         }
-        else
-        {
-            startMenuElements.HideTheElements(() =>
-            {
-                gameMenuElements.ShowTheElements(() =>
-                {
-                    LevelManager.Instance.BeginGame();
-                    joystick.SetActive(true);
-                });
-            });
-        }
         
     }
 
     #endregion
-
     
     #region Slide Process
 

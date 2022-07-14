@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     public List<GameObject> addedNumbers;
     private bool IsPortalable = true;
     public bool IsCompleted;
+    private bool isGameLost;
     public int total;
     private Animator animator;
     
@@ -35,13 +36,28 @@ public class PlayerController : MonoBehaviour
         SetNumber(firstNumber, 0, false);
     }
 
+    private void OnEnable()
+    {
+        ProjectEvents.GameLost += GameLost;
+    }
+    
+    private void OnDisable()
+    {
+        ProjectEvents.GameLost -= GameLost;
+    }
+    
+    private void GameLost()
+    {
+        isGameLost = true;
+    }
+
     #region Collision
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Number"))
         {
-            if (!IsCompleted)
+            if (!IsCompleted && !isGameLost)
             {
                 var number = other.GetComponent<Number>();
                 SetNumber(number.TotalAmount(),number.PlusTyped(), true);
@@ -51,7 +67,7 @@ public class PlayerController : MonoBehaviour
         }
         if (other.CompareTag("Portal"))
         {
-            if (!IsCompleted)
+            if (!IsCompleted && !isGameLost)
             {
                 if(!IsPortalable) return;
                 IsPortalable = true;
