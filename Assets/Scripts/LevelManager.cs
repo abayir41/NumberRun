@@ -30,9 +30,11 @@ public class LevelManager : MonoBehaviour
     public GameObject confetti;
 
     [Header("Envoriment")] 
-    [SerializeField] private List<Transform> environmentNumbers;
-    
-    
+    [SerializeField] private List<Transform> environmentNumbersParentOfParents;
+    [SerializeField] private List<Transform> environmentNumbersParents;
+    [SerializeField] private List<Material> materialsForEnvironmentNumber;
+    private List<Vector3> cachedScales;
+
     public int LevelTime => (int) _timeCounter;
     private float _timeCounter;
     private bool _isGamePlaying;
@@ -54,31 +56,23 @@ public class LevelManager : MonoBehaviour
         SpawnPortals();
         SpawnMobs();
         LevelGoal();
-        
-        
-        //Animating environment
-        foreach (var number in environmentNumbers)
-        {
-            var numberPosition = number.localScale;
-            var fatScale = new Vector3(numberPosition.x * 1.1f, numberPosition.y * 0.9f, numberPosition.z);
-            var skinnyScale = new Vector3(numberPosition.x * 0.9f, numberPosition.y * 1.1f, numberPosition.z);
 
-            //50 50 possibility
-            if (Random.Range(0.0f, 10f) > 5)
-            {
-                number.localScale = fatScale;
-                number.DOScale(skinnyScale, Random.Range(2.5f,3.5f)).SetLoops(-1, LoopType.Yoyo).Goto(Random.Range(0f,5f), true);
-            }
-            else
-            {
-                number.localScale = fatScale;
-                number.DOScale(skinnyScale, Random.Range(2.5f,3.5f)).SetLoops(-1, LoopType.Yoyo).Goto(Random.Range(0f,5f), true);
-            }
+        for (var i = 0; i < environmentNumbersParents.Count; i++)
+        {
+            var parent = environmentNumbersParents[i];
+            SpawnEnvironmentNumber(GameManager.Instance.editorLevelGoal, parent, environmentNumbersParentOfParents[i] ,materialsForEnvironmentNumber[i]);    
         }
 
+        cachedScales = environmentNumbersParentOfParents.ConvertAll(input => input.localScale);
+        environmentNumbersParentOfParents.ForEach(trans => trans.localScale = Vector3.zero);
+
+        
+        
+        
+        
     }
 
-    private void SpawnEnvironmentNumber(int number, Transform parent, Material matOfNumber)
+    private void SpawnEnvironmentNumber(int number, Transform parent,Transform parentOfParent, Material matOfNumber)
     {
         var tempList = new List<int>();
         
@@ -106,20 +100,33 @@ public class LevelManager : MonoBehaviour
         for (int i = 0; i < tempList.Count; i++)
         {
             reverseCount--;
-            var temObj = Instantiate(Resources.Load<GameObject>("Numbers/" + tempList[reverseCount]));
-            temObj.transform.SetParent(transform);
-
+            var temObj = Instantiate(Resources.Load<GameObject>("Numbers/" + tempList[reverseCount]), parent, true);
+            temObj.GetComponent<MeshRenderer>().material = matOfNumber;
             if (!isSingle)
             {
-                //temObj.transform.localPosition = new Vector3(totalTwo, spawnPos.localPosition.y, spawnPos.localPosition.z);
+                temObj.transform.localPosition = new Vector3(totalTwo, 0, 0);
                 totalTwo += increaseRate;
             }
             else
             {
-                //temObj.transform.localPosition = new Vector3(zeroLeftCount, spawnPos.localPosition.y, spawnPos.localPosition.z);
+                temObj.transform.localPosition = new Vector3(zeroLeftCount, 0, 0);
                 zeroLeftCount += increaseRate;
             }
+            
+            temObj.transform.localEulerAngles = Vector3.up * 180;
+            temObj.transform.localScale = Vector3.one * 100; 
         }
+
+        
+        if (tempList.Count == 3)
+        {
+            parentOfParent.localScale *= 4f / 5f;
+        }
+        else if (tempList.Count == 2)
+        {
+            parentOfParent.localScale *= 5f / 6f;
+        }
+        
     }
 
     private void Update()
@@ -135,15 +142,17 @@ public class LevelManager : MonoBehaviour
     {
         ProjectEvents.GameLost += GameLost;
         ProjectEvents.GameWin += GameWin;
+        ProjectEvents.UITargetTextStartedTheHideAnimation += UITargetTextStartedTheHideAnimation;
     }
 
     
-
 
     private void OnDisable()
     {
         ProjectEvents.GameLost -= GameLost;
         ProjectEvents.GameWin -= GameWin;
+        ProjectEvents.UITargetTextStartedTheHideAnimation -= UITargetTextStartedTheHideAnimation;
+
     }
 
     public void BeginGame()
@@ -602,5 +611,34 @@ public class LevelManager : MonoBehaviour
     public void PathCompleted()
     {
         
+    }
+    
+    private void UITargetTextStartedTheHideAnimation()
+    {
+        
+        for (var i = 0; i < environmentNumbersParentOfParents.Count; i++)
+        {
+            var parent = environmentNumbersParentOfParents[i];
+            parent.DOScale(cachedScales[i], 1.5f).SetDelay(i * 0.5f);
+            parent.DORotate(parent.eulerAngles + new Vector3(0, 360, 0) * 2, 1.5f, RotateMode.FastBeyond360).SetDelay(i * 0.5f).OnComplete(
+                () =>
+                {
+                    var numberPosition = parent.localScale;
+                    var fatScale = new Vector3(numberPosition.x * 1.2f, numberPosition.y * 0.833f, numberPosition.z);
+                    var skinnyScale = new Vector3(numberPosition.x * 0.833f, numberPosition.y * 1.2f, numberPosition.z);
+
+                    //50 50 possibility
+                    if (Random.Range(0.0f, 10f) > 5)
+                    {
+                        parent.localScale = fatScale;
+                        parent.DOScale(skinnyScale, Random.Range(1.5f,2.5f)).SetLoops(-1, LoopType.Yoyo).Goto(Random.Range(0f,5f), true);
+                    }
+                    else
+                    {
+                        parent.localScale = fatScale;
+                        parent.DOScale(skinnyScale, Random.Range(1.5f,2.5f)).SetLoops(-1, LoopType.Yoyo).Goto(Random.Range(0f,5f), true);
+                    }
+                });
+        }
     }
 }

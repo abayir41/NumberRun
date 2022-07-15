@@ -296,11 +296,6 @@ public class UIManager : MonoBehaviour
 
     }
 
-    private IEnumerator GameStartAnim()
-    {
-        yield return null;
-    }
-
     #endregion
     
     #region Button Events
@@ -378,6 +373,7 @@ public class UIManager : MonoBehaviour
                 {
                     targetRectAnim.DOMove(_cachedPosOfTargetElement, 2f).SetEase(targetTextAnimCurve).OnComplete(() =>
                     {
+                        ProjectEvents.UITargetTextStartedTheHideAnimation?.Invoke();
                         targetTextElementAnim.Hide();
                         gameMenuElements.ShowTheElements(() =>
                         {
@@ -394,6 +390,7 @@ public class UIManager : MonoBehaviour
             { 
                 targetRectAnim.DOMove(_cachedPosOfTargetElement, 2f).SetEase(targetTextAnimCurve).OnComplete(() =>
                 {
+                    ProjectEvents.UITargetTextStartedTheHideAnimation?.Invoke();
                     targetTextElementAnim.Hide();
                     gameMenuElements.ShowTheElements(() =>
                     {

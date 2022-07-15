@@ -33,8 +33,12 @@ public static class ProjectEvents
     public static Action StageDownAnimCompleted;
     
     public static Action StagesPassedOverTheTargetAnimCompleted;
-
     
     #endregion
 
+    #region UIEvents
+
+    public static Action UITargetTextStartedTheHideAnimation;
+
+    #endregion
 }
