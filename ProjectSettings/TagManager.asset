@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Number
   - Portal
+  - ScaleFeedback
+  - Destroyer
   layers:
   - Default
   - TransparentFX

@@ -8,8 +8,7 @@ public class IQStageManager : MonoBehaviour
 {
     public static IQStageManager Instance { get; private set; }
     
-    public int startPoint;
-    public int targetPoint;
+    private int _targetPoint;
     [SerializeField] private int stageCount;
     [SerializeField] private List<Sprite> stageSprites;
 
@@ -17,10 +16,8 @@ public class IQStageManager : MonoBehaviour
     private Stage _currentStage;
     private float _currentRatioOfBetweenStages;
     private float _score;
+    
 
-    //this stages will be used for calculations
-    private List<Stage> _imaginalStages;
- 
     private void Awake()
     {
         if (Instance == null)
@@ -31,19 +28,7 @@ public class IQStageManager : MonoBehaviour
             throw new Exception("Stage Sprites not enough for Stage Count");
 
         _iqStages = new List<Stage>();
-
-        //for calculations
-        var stepAmount = (float)(targetPoint - startPoint) / stageCount;
-
-        //Creating iq stages
-        for (var i = 0; i < stageCount; i++)
-        {
-            var stage = new Stage(stageSprites[i], i * stepAmount, (i + 1) * stepAmount);
-            _iqStages.Add(stage);
-        }
-
-        _currentStage = _iqStages.First();
-
+        
     }
 
     private void OnEnable()
@@ -56,11 +41,28 @@ public class IQStageManager : MonoBehaviour
         ProjectEvents.ScoreChanged -= ScoreChanged;
     }
 
+    public void SetupTheIQStates(int targetPoint)
+    {
+        _targetPoint = targetPoint;
+        
+        //for calculations
+        var stepAmount = (float)targetPoint / stageCount;
+
+        //Creating iq stages
+        for (var i = 0; i < stageCount; i++)
+        {
+            var stage = new Stage(stageSprites[i], i * stepAmount, (i + 1) * stepAmount);
+            _iqStages.Add(stage);
+        }
+
+        _currentStage = _iqStages.First();
+    }
+
     private void ScoreChanged(float newScore)
     {
-        var currentAbsoluteDistance = targetPoint - Math.Min(targetPoint, Math.Abs(_score - targetPoint));
+        var currentAbsoluteDistance = _targetPoint - Math.Min(_targetPoint, Math.Abs(_score - _targetPoint));
         
-        var newAbsoluteDistance = targetPoint - Math.Min(targetPoint, Math.Abs(newScore - targetPoint));
+        var newAbsoluteDistance = _targetPoint - Math.Min(_targetPoint, Math.Abs(newScore - _targetPoint));
         var newStage = WhatStageEquivalentForScore(newAbsoluteDistance);
         var newRatio = (newAbsoluteDistance - newStage.StartPoint) / (newStage.FinishPoint - newStage.StartPoint);
 
@@ -120,7 +122,7 @@ public class IQStageManager : MonoBehaviour
 
     private bool IsScoreInRightSide(float score)
     {
-        return score > targetPoint;
+        return score > _targetPoint;
     }
 
     public Stage GetCurrentStage()

@@ -269,7 +269,7 @@ public class UIManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         iqSlideEndGame.Show(() =>
         {
-            StartCoroutine(PlayerController.Instance.EndUITimeDecrease());
+            PlayerController.Instance.EndUITimeDecrease();
         });
     }
 
@@ -411,11 +411,15 @@ public class UIManager : MonoBehaviour
     {
         if (_currentSequence.IsActive())
         {
+            /*
             var sliderAnimationSequence = DOTween.Sequence().Pause();
             _currentSequence.OnKill(() =>
             {
                 sliderAnimationSequence.Play();
             });
+            */
+            _currentSequence.Complete();
+            var sliderAnimationSequence = DOTween.Sequence();
             _currentSequence = sliderAnimationSequence;
         }
         else

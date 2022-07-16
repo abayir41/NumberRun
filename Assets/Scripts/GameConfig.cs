@@ -8,9 +8,15 @@ public class GameConfig : ScriptableObject
     //Game Configurations
     //-------------------------------
     public float TimeEquivalentScore => timeEquivalentScore;
+    public int LevelGoalMin => levelGoalMin;
+    public int LevelGoalMax => levelGoalMax;
+    public int GoalCoefficientOf => goalCoefficientOf;
     
     [Header("Game Configurations")] 
     [SerializeField] private float timeEquivalentScore;
+    [SerializeField] private int levelGoalMin;
+    [SerializeField] private int levelGoalMax;
+    [SerializeField] private int goalCoefficientOf;
    
     
     
@@ -35,4 +41,6 @@ public class GameConfig : ScriptableObject
     [SerializeField] private float uiScaleLoopDuration;
     [SerializeField] private float uiRotationLoopDuration;
 
+    
+    
 }

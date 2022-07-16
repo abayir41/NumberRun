@@ -297,22 +297,25 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
-    public IEnumerator EndUITimeDecrease()
+    public void EndUITimeDecrease()
     {
-        var time = LevelManager.Instance.LevelTime;
+        var timeCached = (float)LevelManager.Instance.LevelTime;
+        var time = (float)LevelManager.Instance.LevelTime;
         var timeEquivalentScore = 1 / Config.TimeEquivalentScore;
-        var scoreAsFloat = (float) total;
-        
-        while (time > 0)
-        {
-            time -= 1;
-            scoreAsFloat -= timeEquivalentScore;
-            ProjectEvents.ScoreChanged?.Invoke(scoreAsFloat);
-            ProjectEvents.TimeChanged?.Invoke(time);
-            yield return new WaitForSeconds(Config.UITimeDecreasingTime);
-        }
+        var scoreAsFloatCached = (float) total;
+        float scoreAsFloat;
 
-        StartCoroutine(UIManager.Instance.EndGameAnimUIEmojiPart());
+        DOTween.To(() => time, value =>
+        {
+            time = value;
+            scoreAsFloat = scoreAsFloatCached - (timeCached - time) * timeEquivalentScore;
+            
+            ProjectEvents.ScoreChanged?.Invoke(scoreAsFloat);
+            ProjectEvents.TimeChanged?.Invoke((int)time);
+        }, 0, Config.UITimeDecreasingTime).OnComplete(() =>
+        {
+            StartCoroutine(UIManager.Instance.EndGameAnimUIEmojiPart());
+        });
     }
 
 }

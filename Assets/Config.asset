@@ -13,10 +13,13 @@ MonoBehaviour:
   m_Name: Config
   m_EditorClassIdentifier: 
   timeEquivalentScore: 5
+  levelGoalMin: 20
+  levelGoalMax: 200
+  goalCoefficientOf: 50
   uiMoveAnimationDuration: 0.4
   uiFadeOutAnimationDuration: 0.2
   uiFadeLoopAnimationDuration: 2
   uiMinimizeTime: 0.2
-  uiTimeDecreasingTime: 0.2
+  uiTimeDecreasingTime: 2
   uiScaleLoopDuration: 2
   uiRotationLoopDuration: 8

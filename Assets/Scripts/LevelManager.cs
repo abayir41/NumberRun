@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance;
-    
+    private static GameConfig Config => GameManager.Config;
     
     [Header("Beginner")] 
     public int curGameType;
@@ -17,8 +17,13 @@ public class LevelManager : MonoBehaviour
     public GameObject pathCube;
     public GameObject[] portalPos;
     public List<GameObject> expPortals;
+    
     [Header("Level Settings")] 
     public int levelGoal;
+    public int LevelGoalMin => Config.LevelGoalMin;
+    public int LevelGoalMax => Config.LevelGoalMax;
+    public int GoalCoefficientOf => Config.GoalCoefficientOf;
+    
     [Header("Spawn")] 
     public GameObject coinSpawnParent;
     public string spawnablePath = "Spawnable/Number";
@@ -29,12 +34,25 @@ public class LevelManager : MonoBehaviour
     [Header("Final")] 
     public GameObject confetti;
 
-    [Header("Envoriment")] 
+    [Header("Environment")] 
     [SerializeField] private List<Transform> environmentNumbersParentOfParents;
     [SerializeField] private List<Transform> environmentNumbersParents;
     [SerializeField] private List<Material> materialsForEnvironmentNumber;
-    private List<Vector3> cachedScales;
+    private List<Vector3> _cachedScales;
 
+    [Header("Loop Map - Infinity Map")] 
+    [SerializeField] private GameObject road;
+    [SerializeField] private Transform roadStart;
+    [SerializeField] private Transform roadEnd;
+    [SerializeField] private Transform mobStart;
+    [SerializeField] private Transform mobEnd;
+    [SerializeField] private Transform portalStart;
+    [SerializeField] private Transform portalEnd;
+    private Vector3 _lenghtMob;
+    private Vector3 _lenghtPortal;
+    private Transform _lastRoad;
+    private Vector3 _lengthOfRoad;
+    
     public int LevelTime => (int) _timeCounter;
     private float _timeCounter;
     private bool _isGamePlaying;
@@ -43,6 +61,11 @@ public class LevelManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+
+        _lengthOfRoad = roadEnd.position - roadStart.position;
+        _lenghtMob = mobEnd.position - mobStart.position;
+        _lenghtPortal = portalEnd.position - portalStart.position;
+        _lastRoad = road.transform;
     }
 
     #region Beginner
@@ -51,25 +74,30 @@ public class LevelManager : MonoBehaviour
     {
         if (GameManager.Instance.IsEditorGoal)
         {
-            levelGoal = GameManager.Instance.editorLevelGoal;
+            var randomGoalMaxCoeff = LevelGoalMax / GoalCoefficientOf;
+            var randomGoalMinCoeff = LevelGoalMin / GoalCoefficientOf;
+            levelGoal = Random.Range(randomGoalMinCoeff, randomGoalMaxCoeff + 1) * GoalCoefficientOf;
         }
-        SpawnPortals();
-        SpawnMobs();
+
+        for (int i = 0; i < 1; i++)
+        {
+            SpawnPortalInfinite();
+            SpawnMobInfinite();
+            SpawnRoad();
+        }
+        
         LevelGoal();
 
         for (var i = 0; i < environmentNumbersParents.Count; i++)
         {
             var parent = environmentNumbersParents[i];
-            SpawnEnvironmentNumber(GameManager.Instance.editorLevelGoal, parent, environmentNumbersParentOfParents[i] ,materialsForEnvironmentNumber[i]);    
+            SpawnEnvironmentNumber(levelGoal, parent, environmentNumbersParentOfParents[i] ,materialsForEnvironmentNumber[i]);    
         }
 
-        cachedScales = environmentNumbersParentOfParents.ConvertAll(input => input.localScale);
+        _cachedScales = environmentNumbersParentOfParents.ConvertAll(input => input.localScale);
         environmentNumbersParentOfParents.ForEach(trans => trans.localScale = Vector3.zero);
-
         
-        
-        
-        
+        IQStageManager.Instance.SetupTheIQStates(levelGoal);
     }
 
     private void SpawnEnvironmentNumber(int number, Transform parent,Transform parentOfParent, Material matOfNumber)
@@ -136,6 +164,21 @@ public class LevelManager : MonoBehaviour
             _timeCounter += Time.deltaTime;
             ProjectEvents.TimeChanged?.Invoke(LevelTime);
         }
+
+        if ((_lastRoad.position - PlayerController.Instance.transform.position).magnitude < 300)
+        {
+            SpawnRoad();
+        }
+
+        if ((mobEnd.position - PlayerController.Instance.transform.position).magnitude < 300)
+        {
+            SpawnMobInfinite();
+        }
+        
+        if ((portalEnd.position - PlayerController.Instance.transform.position).magnitude < 300)
+        {
+            SpawnPortalInfinite();
+        }
     }
 
     private void OnEnable()
@@ -144,9 +187,7 @@ public class LevelManager : MonoBehaviour
         ProjectEvents.GameWin += GameWin;
         ProjectEvents.UITargetTextStartedTheHideAnimation += UITargetTextStartedTheHideAnimation;
     }
-
     
-
     private void OnDisable()
     {
         ProjectEvents.GameLost -= GameLost;
@@ -571,7 +612,6 @@ public class LevelManager : MonoBehaviour
     {
         if (GameManager.Instance.IsEditorGoal)
         {
-            levelGoal = GameManager.Instance.editorLevelGoal;
             UIManager.Instance.SetGoalText(levelGoal);
         }
     }
@@ -619,7 +659,7 @@ public class LevelManager : MonoBehaviour
         for (var i = 0; i < environmentNumbersParentOfParents.Count; i++)
         {
             var parent = environmentNumbersParentOfParents[i];
-            parent.DOScale(cachedScales[i], 1.5f).SetDelay(i * 0.5f);
+            parent.DOScale(_cachedScales[i], 1.5f).SetDelay(i * 0.5f);
             parent.DORotate(parent.eulerAngles + new Vector3(0, 360, 0) * 2, 1.5f, RotateMode.FastBeyond360).SetDelay(i * 0.5f).OnComplete(
                 () =>
                 {
@@ -640,5 +680,30 @@ public class LevelManager : MonoBehaviour
                     }
                 });
         }
+    }
+
+    private void SpawnRoad()
+    {
+        var newRoad = Instantiate(road);
+        newRoad.transform.position = _lastRoad.position + _lengthOfRoad;
+        _lastRoad = newRoad.transform;
+    }
+
+    private void SpawnMobInfinite()
+    {
+        SpawnMobs();
+        var lastPosition = mobEnd.position;
+        mobStart.position = lastPosition;
+        lastPosition += _lenghtMob;
+        mobEnd.position = lastPosition;
+    }
+
+    private void SpawnPortalInfinite()
+    {
+        SpawnPortals();
+        var lastPosition = portalEnd.position;
+        portalStart.position = lastPosition;
+        lastPosition += _lenghtPortal;
+        portalEnd.position = lastPosition;
     }
 }
