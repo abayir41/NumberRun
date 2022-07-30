@@ -16,7 +16,6 @@ public class LevelManager : MonoBehaviour
     public GameObject BeginnerPlayer;
     public GameObject pathCube;
     public GameObject[] portalPos;
-    public List<GameObject> expPortals;
     
     [Header("Level Settings")] 
     public int levelGoal;
@@ -48,6 +47,8 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private Transform mobEnd;
     [SerializeField] private Transform portalStart;
     [SerializeField] private Transform portalEnd;
+    public List<GameObject> ExpPortals { get; private set; }
+    public List<GameObject> Numbers { get; private set; }
     private Vector3 _lenghtMob;
     private Vector3 _lenghtPortal;
     private Transform _lastRoad;
@@ -62,6 +63,9 @@ public class LevelManager : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
+        ExpPortals = new List<GameObject>();
+        Numbers = new List<GameObject>();
+        
         _lengthOfRoad = roadEnd.position - roadStart.position;
         _lenghtMob = mobEnd.position - mobStart.position;
         _lenghtPortal = portalEnd.position - portalStart.position;
@@ -76,7 +80,7 @@ public class LevelManager : MonoBehaviour
         {
             var randomGoalMaxCoeff = LevelGoalMax / GoalCoefficientOf;
             var randomGoalMinCoeff = LevelGoalMin / GoalCoefficientOf;
-            levelGoal = Random.Range(randomGoalMinCoeff, randomGoalMaxCoeff + 1) * GoalCoefficientOf;
+            levelGoal = Random.Range(randomGoalMinCoeff + 1, randomGoalMaxCoeff + 1) * GoalCoefficientOf;
         }
 
         for (int i = 0; i < 1; i++)
@@ -263,26 +267,29 @@ public class LevelManager : MonoBehaviour
     private void SpawnForward(GameObject[] go, int totalSpawnCoin)
     {
         var distance = GameManager.Instance.distanceBetweenMobAndPortal;
-        for (int i = 0; i < totalSpawnCoin; i++)
+        for (var i = 0; i < totalSpawnCoin; i++)
         {
             var spawnPosZ = go[0].transform.position.z + (i * GameManager.Instance.spawnMobDistanceVertical);
-            int IsAnyPortal = 0;
-            for (int j = 0; j < expPortals.Count; j++)
+            var isAnyPortal = 0;
+            
+            foreach (var portal in ExpPortals)
             {
-                if (spawnPosZ < expPortals[j].transform.position.z + distance &&
-                    spawnPosZ > expPortals[j].transform.position.z - distance)
+                
+                if (spawnPosZ < portal.transform.position.z + distance &&
+                    spawnPosZ > portal.transform.position.z - distance)
                 {
-                    IsAnyPortal++;
+                    isAnyPortal++;
                 }
             }
 
-            if (IsAnyPortal == 0)
+            if (isAnyPortal == 0)
             {
                 for (int j = 0; j < GameManager.Instance.spawnMobDistanceHorizontal.Length; j++)
                 {
-                    int isSpawn = Random.Range(0, 100);
+                    var isSpawn = Random.Range(0, 100);
                     if (isSpawn < GameManager.Instance.spawnRate)
                     {
+
                         int obsSpawn = Random.Range(0, 100);
                         if (obsSpawn < GameManager.Instance.obsSpawnRate)
                         {
@@ -295,6 +302,8 @@ public class LevelManager : MonoBehaviour
                                 SpawnItem.transform.position.y,
                                 spawnPosZ);
                             SpawnItem.transform.rotation = go[0].transform.rotation;
+                            
+                            Numbers.Add(SpawnItem);
                         }
                         else
                         {
@@ -307,6 +316,8 @@ public class LevelManager : MonoBehaviour
                                 spawnPosZ);
                             SpawnItem.transform.rotation = go[0].transform.rotation;
                             SpawnItem.GetComponent<Number>().SetPlus(number,type);
+                            
+                            Numbers.Add(SpawnItem);
                         }
                     }
                 }
@@ -321,10 +332,10 @@ public class LevelManager : MonoBehaviour
         {
             var spawnPosX = go[0].transform.position.x + (i * GameManager.Instance.spawnMobDistanceVertical);
             int IsAnyPortal = 0;
-            for (int j = 0; j < expPortals.Count; j++)
+            for (int j = 0; j < ExpPortals.Count; j++)
             {
-                if (spawnPosX < expPortals[j].transform.position.x + distance &&
-                    spawnPosX > expPortals[j].transform.position.x - distance)
+                if (spawnPosX < ExpPortals[j].transform.position.x + distance &&
+                    spawnPosX > ExpPortals[j].transform.position.x - distance)
                 {
                     IsAnyPortal++;
                 }
@@ -375,10 +386,10 @@ public class LevelManager : MonoBehaviour
             // pos - 12 portal -30 distance 3
             var spawnPosX = go[0].transform.position.x - (i * GameManager.Instance.spawnMobDistanceVertical);
             int IsAnyPortal = 0;
-            for (int j = 0; j < expPortals.Count; j++)
+            for (int j = 0; j < ExpPortals.Count; j++)
             {
-                if (spawnPosX < expPortals[j].transform.position.x + distance &&
-                    spawnPosX > expPortals[j].transform.position.x - distance)
+                if (spawnPosX < ExpPortals[j].transform.position.x + distance &&
+                    spawnPosX > ExpPortals[j].transform.position.x - distance)
                 {
                     IsAnyPortal++;
                 }
@@ -540,7 +551,19 @@ public class LevelManager : MonoBehaviour
             if (portalSpawnRate < GameManager.Instance.portalSpawnRate)
             {
                 var spawnPosZ = go[0].transform.position.z + (i * GameManager.Instance.spawnPortalDistanceVertical);
-            
+                
+                var isThereAnyCollision = false;
+                foreach (var number in Numbers)
+                {
+                    if (spawnPosZ < number.transform.position.z + GameManager.Instance.distanceBetweenMobAndPortal &&
+                        spawnPosZ > number.transform.position.z - GameManager.Instance.distanceBetweenMobAndPortal)
+                    {
+                        isThereAnyCollision = true;
+                        break;
+                    }
+                }
+                if(isThereAnyCollision) continue;
+                
                 var portal = Instantiate(Resources.Load<GameObject>("Map/Gate"));
                 portal.transform.position = new Vector3(go[0].transform.position.x,
                     go[0].transform.position.y, spawnPosZ);
@@ -550,8 +573,8 @@ public class LevelManager : MonoBehaviour
                 int year1 = Random.Range(GameManager.Instance.addableExp[0], GameManager.Instance.addableExp[1]);
 
                 portal.GetComponent<GateController>().SetPortals(year0, year1);
-            
-                expPortals.Add(portal);
+                
+                ExpPortals.Add(portal);
             }
         }
     }
@@ -575,7 +598,7 @@ public class LevelManager : MonoBehaviour
 
                 portal.GetComponent<GateController>().SetPortals(year0, year1);
             
-                expPortals.Add(portal);
+                ExpPortals.Add(portal);
             }
         }
     }
@@ -599,7 +622,7 @@ public class LevelManager : MonoBehaviour
 
                 portal.GetComponent<GateController>().SetPortals(year0, year1);
             
-                expPortals.Add(portal);
+                ExpPortals.Add(portal);
             }
         }
     }

@@ -64,6 +64,12 @@ public class PlayerController : MonoBehaviour
             }
             
             Destroy(other.gameObject);
+            
+            if (LevelManager.Instance.Numbers.Contains(other.gameObject))
+            {
+                LevelManager.Instance.Numbers.Remove(other.gameObject);
+            }
+            
         }
         if (other.CompareTag("Portal"))
         {
@@ -76,6 +82,12 @@ public class PlayerController : MonoBehaviour
                 IsPortalable = true;
 
             }
+            
+            if (LevelManager.Instance.ExpPortals.Contains(other.transform.parent.gameObject))
+            {
+                LevelManager.Instance.ExpPortals.Remove(other.transform.parent.gameObject);
+            }
+            
             Destroy(other.transform.parent.gameObject);
 
         }

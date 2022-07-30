@@ -8305,10 +8305,6 @@ MonoBehaviour:
   BeginnerPlayer: {fileID: 6604812024923017195}
   pathCube: {fileID: 438658527}
   portalPos: []
-  expPortals: []
-  levelGoalMin: 100
-  levelGoalMax: 800
-  goalCoefficientOf: 50
   levelGoal: 0
   coinSpawnParent: {fileID: 1248094039}
   spawnablePath: Spawnable/Number
@@ -8364,10 +8360,10 @@ MonoBehaviour:
   - {r: 1, g: 0.02745098, b: 0.003921569, a: 1}
   addableExp: 0100000003000000
   badPortalRate: 20
-  spawnPortalDistanceVertical: 65
+  spawnPortalDistanceVertical: 15
   onePortalSpawnRate: 50
   portalSpawnRate: 90
-  distanceBetweenMobAndPortal: 10
+  distanceBetweenMobAndPortal: 5
   obsSpawnRate: 0
   isOnlyOneObs: 0
   spawnObsNumber: 0
@@ -8513,8 +8509,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fa9407d0faedd74289fd6bdc6ff5739, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startPoint: 0
-  targetPoint: 10
   stageCount: 3
   stageSprites:
   - {fileID: 21300000, guid: 122c6c4556fa46e47a03964a9eeff2f9, type: 3}
