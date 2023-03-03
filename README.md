@@ -10,4 +10,4 @@ This a game that I aim to improve my game development ability and applying my ne
 
 ## Here The Google Play Link
 <a href="https://play.google.com/store/apps/details?id=com.AtlamGames.NumberRush&hl=en&gl=US">
-<img src="Dozer/Dozer/Images/PlayStoreLink.webp" width="150"></a>
+<img src="PlayStoreLink.webp" width="150"></a>
